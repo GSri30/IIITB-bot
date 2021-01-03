@@ -3,12 +3,15 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
+from __constants import *
+from sendmail import send_mail,SENDER_ID,SENDER_PASSWORD
+from passwordgen import passgen,hash,match
+
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 ADMIN = os.getenv("ADMIN")
 SAC_CHANNEL = os.getenv("SAC_CHANNEL")
 AUTH_CHANNEL = os.getenv("AUTH_CHANNEL")
-
 
 
 bot = commands.Bot(command_prefix='!')
@@ -25,7 +28,16 @@ async def register(ctx, mailID:str):
     if(str(ctx.channel.id)!=AUTH_CHANNEL):
         await ctx.send(f"This command cannot be used from here.")
         return
+    #send_mail(mailID,passgen())
+    await ctx.message.add_reaction(UNCHECK_EMOJI)
     await ctx.send(f"{mailID} registered for user {ctx.author} with {ctx.author.id}")
+
+@bot.command(name="verify",help="Verifies the user email using an associated auto generated key.")
+async def verify(ctx,key:str):
+    if match(key,usrhash):
+        await ctx.author.send(f"You made it! Welcome to IIITB discord community!")
+    else:
+        await ctx.author.send(f"Sorry, you entered a wrong key. Try again!")
 
 @bot.command(name="couriers",help="Gives you your couriers list.(if any)")
 async def couriers(ctx):
