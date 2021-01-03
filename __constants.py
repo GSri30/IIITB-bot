@@ -6,3 +6,4 @@ NON_STUDENT_MAILS=[
     "",
     ""
 ]
+LENGTH=16

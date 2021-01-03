@@ -1,16 +1,13 @@
-#bcrypt is used for hashing
-
 from secrets import token_hex
-import string
 import bcrypt
+from __constants import LENGTH
 
-LENGTH=16
 
-def hash(password):
+def Hash(password:str):
     return bcrypt.hashpw(password.encode("UTF-8"), bcrypt.gensalt())
 
-def match(password,hashed):
+def Match(password:str,hashed:str):
     return bcrypt.checkpw(password.encode("UTF-8"),hashed) 
 
-def passgen():
+def GeneratePassword():
     return str(token_hex(LENGTH))
