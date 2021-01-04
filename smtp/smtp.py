@@ -12,10 +12,7 @@ SENDER_PASSWORD=os.getenv("SENDER_PASSWORD")
 def send_mail(RECEIVER,KEY):
 
     SUBJECT=f"Verify Email Address for IIIT-B discord server!"
-    MESSAGE=f"Hey there!\n\nThanks for taking out your time for this!\nTo verify your email, \
-    please use the below key :\n{KEY}\nYou can use my !verify command in the same channel or \
-    can directly message me!\n\n!verify {KEY}\n\nIn case of any issues, contact any of the \
-    server admins. DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
+    MESSAGE=f"Hey there!\n\nThanks for taking out your time for this!\nTo verify your email,please use the below key :\n{KEY}\nYou can use my !verify command in the same channel or can directly message me!\n\n!verify {KEY}\n\nIn case of any issues, contact any of the server admins. DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
 
 
     session=smtplib.SMTP("smtp.gmail.com",587)

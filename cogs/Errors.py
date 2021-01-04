@@ -20,7 +20,6 @@ class Errors(commands.Cog,name="Errors Cog"):
     #!NOT working
     @commands.Cog.listener()
     async def on_error(self,ctx,error):
-        print("error\n\n")
         with open(path.dirname(__file__)+"/../err.log","a") as f:
             f.write(f"{error}\n")
 

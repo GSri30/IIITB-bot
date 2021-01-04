@@ -2,7 +2,6 @@ from secrets import token_hex
 import bcrypt
 from __constants import LENGTH
 
-
 def Hash(password:str):
     return bcrypt.hashpw(password.encode("UTF-8"), bcrypt.gensalt())
 

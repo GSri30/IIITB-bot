@@ -1,10 +1,10 @@
-# Add the newly created COGS here
+# Add any newly created COGS here
 
 COGS=[
+    "cogs.Greetings",
     "cogs.Admin",
     "cogs.General",
     "cogs.Errors",
-    "cogs.Greetings",
     "cogs.Couriers",
     "cogs.CP",
 ]
