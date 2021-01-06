@@ -3,6 +3,8 @@ from discord.channel import DMChannel
 import discord
 from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI
 
+from Database import sqlite
+
 from os import getenv
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,14 +19,42 @@ class Admin(commands.Cog,name="Admin Cog"):
     def is_in_channel(self,ctx,channel_id,dm_allowed):
         return (channel_id and (str(ctx.message.channel.id) == str(channel_id)) or (dm_allowed and isinstance(ctx.channel,DMChannel)))
 
-    @commands.command(name="filter",help="Filters out the unauthorized users.")
+    # @commands.command(name="filter",help="Filters out the unauthorized users.")
+    # @commands.has_role(ADMIN)
+    # async def filter(self,ctx):
+    #     if not self.is_in_channel(ctx,SAC_CHANNEL,True):
+    #         db=sqlite.SQLite()
+    #         if(db.Connect() and db.UnverifiedUsers()):
+    #             await ctx.message.add_reaction(CHECK_EMOJI)
+    #             await ctx.send(file=discord.File(sqlite.EXCEL_PATH))
+    #             db.DeleteCSV()
+    #             db.Close()
+    #             return
+    #     await ctx.message.add_reaction(UNCHECK_EMOJI)
+
+    @commands.command(name="filter",help="Filters out the unauthorized users and tags them.")
     @commands.has_role(ADMIN)
     async def filter(self,ctx):
-        if not self.is_in_channel(ctx,SAC_CHANNEL,True):
+        if not self.is_in_channel(ctx,SAC_CHANNEL,False):
             ctx.message.add_reaction(CROSS_EMOJI)
             return
-        #Filter the DB and return the unverified users list
         await ctx.message.add_reaction(CHECK_EMOJI)
+        db=sqlite.SQLite()
+        db.Connect()
+        set1=set(db.verified())
+        print(set1)
+        set2=set([str(member.id) for member in ctx.message.guild.members])
+        print(set2)
+        db.Close()
+        diff=set2.difference(set1)
+        if(len(diff)):
+            message=""
+            for s in diff:
+                message+=f"<@{s}>"
+            await ctx.send(message)
+            return
+        await ctx.send("No unverified users in the server!:smile:")
+
 
     @commands.command(name="filter-remove",help="Filters out the unauthorized users and removes them from the server.")
     @commands.has_role(ADMIN)
@@ -32,9 +62,20 @@ class Admin(commands.Cog,name="Admin Cog"):
         if not self.is_in_channel(ctx,SAC_CHANNEL,False):
             ctx.message.add_reaction(CROSS_EMOJI)
             return
-        #Remove the filtered users from DB.
-        # Add them to the unauth
         await ctx.message.add_reaction(CHECK_EMOJI)
+        db=sqlite.SQLite()
+        db.Connect()
+        db.RemoveUnverified()
+        set1=set(db.verified())
+        print(set1)
+        set2=set([str(member.id) for member in ctx.message.guild.members])
+        print(set2)
+        db.Close()
+        diff=set2.difference(set1)
+        if(len(diff)):
+            return
+        await ctx.send("No unverified users in the server!:smile:")
+
 
     @commands.command(name="ban",help="Bans the specified user from the server.")
     @commands.has_role(ADMIN)
@@ -44,7 +85,7 @@ class Admin(commands.Cog,name="Admin Cog"):
             return
         if member==None or member==ctx.message.author:
             await ctx.send("You cannot ban yourself.")
-            await ctx.message.add_reaction(UNCHECK_EMOJI)
+            await ctx.message.add_reaction(CROSS_EMOJI)
             return
         await member.send(f"You have been banned from {ctx.guild.name}. Contact SAC.")
         await ctx.message.add_reaction(CHECK_EMOJI)
@@ -60,8 +101,22 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.send("You cannot kick out yourself.")
             return
         await ctx.message.add_reaction(CHECK_EMOJI)
-        await member.send(f"You have been kicked out from {ctx.guild.name}. Contact SAC.")
+        await member.send(f"You have been kicked out from {ctx.guild.name}. Contact admins.")
 
+    @commands.has_role(ADMIN)
+    @commands.command(name="exceldb",help="Gives the database list in an excel sheet form.")
+    async def ExcelForm(self,ctx):
+        if not self.is_in_channel(ctx,SAC_CHANNEL,False):
+            ctx.message.add_reaction(CROSS_EMOJI)
+            return
+        db=sqlite.SQLite()
+        if(db.Connect() and db.GenerateCSV()):
+            await ctx.message.add_reaction(CHECK_EMOJI)
+            await ctx.send(file=discord.File(sqlite.EXCEL_PATH))
+            db.DeleteCSV()
+            db.Close()
+            return
+        await ctx.message.add_reaction(UNCHECK_EMOJI)
 
 def setup(bot):
     bot.add_cog(Admin(bot))

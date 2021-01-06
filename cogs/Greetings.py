@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 NEWBIE=getenv("NEWBIE")
 GUILD=getenv("GUILD")
+AUTH=getenv("AUTH")
 
 class Greetings(commands.Cog,name="Greetings Cog"):
     def __init__(self,bot):
@@ -14,6 +15,7 @@ class Greetings(commands.Cog,name="Greetings Cog"):
     @commands.Cog.listener()
     async def on_member_join(self,member):
         await member.add_roles(get(get(self.bot.guilds,name=GUILD).roles,name=NEWBIE))
+        await member.send(f"Hey hii! You need to register your IIITB mail id in order to get into the server! Get over to <#{AUTH}> for registration. :smile:")
 
     @commands.Cog.listener()
     async def on_ready(self):

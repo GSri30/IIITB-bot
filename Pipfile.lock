@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "460263ab3fced98896bc09ab02f5fe4acc74366b7f1e52c71237a2f98f07295e"
+            "sha256": "c07b76ca90bb4dd425373b388abf8ca7cb39c92389052c0d2ec815e139b75779"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -33,6 +33,12 @@
                 "sha256:fb83326d8295e8840e4ba774edf346e87eca78ba8a89c55d2690352842c15ba5"
             ],
             "version": "==3.6.3"
+        },
+        "antiorm": {
+            "hashes": [
+                "sha256:96eb1841ce5163db4cf1dc13f4499ec2d7cffc190cf724b78ffdd3e6b7c4ff93"
+            ],
+            "version": "==1.2.1"
         },
         "async-timeout": {
             "hashes": [
@@ -109,6 +115,19 @@
             ],
             "version": "==3.0.4"
         },
+        "db": {
+            "hashes": [
+                "sha256:980e772f15c1161d3b287ffec4f144e40961b0b3e6d5102809577870bf6c5808"
+            ],
+            "version": "==0.1.1"
+        },
+        "db-sqlite3": {
+            "hashes": [
+                "sha256:4dd410aa28a2c5b66de477f9dc62f523133217dd31c7ed7eb085214bea148db9"
+            ],
+            "index": "pypi",
+            "version": "==0.0.1"
+        },
         "discord.py": {
             "hashes": [
                 "sha256:2367359e31f6527f8a936751fc20b09d7495dd6a76b28c8fb13d4ca6c55b7563",
@@ -119,10 +138,10 @@
         },
         "idna": {
             "hashes": [
-                "sha256:320229aadbdfc597bc28876748cc0c9d04d476e0fe6caacaaddea146365d9f63",
-                "sha256:c9a26e10e5558412384fac891eefb41957831d31be55f1e2c98ed97a70abb969"
+                "sha256:5205d03e7bcbb919cc9c19885f9920d622ca52448306f2377daede5cf3faac16",
+                "sha256:c5b02147e01ea9920e6b0a3f1f7bb833612d507592c837a6c49552768f4054e1"
             ],
-            "version": "==3.0"
+            "version": "==3.1"
         },
         "multidict": {
             "hashes": [
