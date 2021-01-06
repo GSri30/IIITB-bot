@@ -7,6 +7,7 @@ load_dotenv()
 NEWBIE=getenv("NEWBIE")
 GUILD=getenv("GUILD")
 AUTH=getenv("AUTH")
+WELCOME_CHANNEL=getenv("WELCOME")
 
 class Greetings(commands.Cog,name="Greetings Cog"):
     def __init__(self,bot):
@@ -14,13 +15,14 @@ class Greetings(commands.Cog,name="Greetings Cog"):
     
     @commands.Cog.listener()
     async def on_member_join(self,member):
-        await member.add_roles(get(get(self.bot.guilds,name=GUILD).roles,name=NEWBIE))
-        await member.send(f"Hey hii! You need to register your IIITB mail id in order to get into the server! Get over to <#{AUTH}> for registration. :smile:")
+        if not member.bot:
+            await member.add_roles(get(get(self.bot.guilds,name=GUILD).roles,name=NEWBIE))
+            await member.send(f"Hey hii! You need to register your IIITB mail id in order to get into the server! Get over to <#{AUTH}> for registration. :smile:")
+            return
 
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'{self.bot.user.name} has connected to Discord!')
-
 
 def setup(bot):
     bot.add_cog(Greetings(bot))

@@ -1,6 +1,9 @@
 import smtplib,email.mime.multipart,email.mime.text,email.mime.base,email.encoders
-
+import re
 import os
+
+from __constants import REGEX,DOMAIN
+
 from dotenv import load_dotenv
 load_dotenv()
 SENDER_ID=os.getenv("SENDER_ID")
@@ -9,11 +12,20 @@ SENDER_PASSWORD=os.getenv("SENDER_PASSWORD")
 
 #Turn on the option in https://www.google.com/settings/security/lesssecureapps
 
+def validMail(mailID:str,regex:str=REGEX,domain:str=DOMAIN):
+    if re.match(regex,mailID)is None or mailID.split("@")[1]!=domain:
+        return False
+    return True
+
 def send_mail(RECEIVER,KEY):
 
-    SUBJECT=f"Verify Email Address for IIIT-B discord server!"
-    MESSAGE=f"Hey there!\n\nThanks for taking out your time for this!\nTo verify your email,please use the below key :\n{KEY}\nYou can use my !verify command in the same channel or can directly message me!\n\n!verify {KEY}\n\nIn case of any issues, contact any of the server admins. DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
-
+    SUBJECT=f"Verify Email Address for IIIT-B discord server! "
+    MESSAGE=(f"Hey there!\n\nThanks for taking out your time for this!\n"
+            f"To verify your email, please use the below key : "
+            f"\n'{KEY}'\n You can use my !verify command in the same channel. "
+            f"\n\n!verify {KEY}\n\nIn case of any issues, contact any of the server admins. "
+            f"DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
+            )
 
     session=smtplib.SMTP("smtp.gmail.com",587)
     session.starttls()

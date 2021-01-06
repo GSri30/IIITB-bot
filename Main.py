@@ -24,6 +24,5 @@ def main():
     db.init()
     bot.run(TOKEN)
 
-
 if __name__ == "__main__":
     main()

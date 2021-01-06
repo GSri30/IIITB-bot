@@ -1,4 +1,4 @@
-import re
+from cogs.Greetings import NEWBIE
 from discord.ext import commands
 from discord.utils import get,find
 from discord.channel import DMChannel
@@ -14,20 +14,19 @@ load_dotenv()
 AUTH_CHANNEL=getenv("AUTH")
 FQ_CHANNEL=getenv("FEATUREREQ")
 ASSIGN_CHANNEL=getenv("ASSIGN")
+WELCOME_CHANNEL=getenv("WELCOME")
 
 
 class General(commands.Cog,name="General Cog"):
     def __init__(self,bot):
         self.bot=bot
-
-    def validMail(self,mailID:str):
-        if re.match(REGEX,mailID)==None or mailID.split("@")[1]!=DOMAIN:
-            return False
-        return True
     
-    def is_in_channel(self,ctx,channel_id,dm_allowed:bool):
-        return (channel_id and (str(ctx.message.channel.id) == str(channel_id))) or (dm_allowed and isinstance(ctx.channel,DMChannel))
+    def is_in_channel(self,ctx,channel_id):
+        return (channel_id and (str(ctx.message.channel.id) == str(channel_id))) 
         
+    def is_a_DM(self,ctx):
+        return isinstance(ctx.channel,DMChannel)
+
     def store_in_db(self,ctx,mail:str,Hash:str):
         db=sqlite.SQLite()
         if db.Connect() and db.AddStudent(ctx.author.name,ctx.author.id,mail,Hash):
@@ -38,37 +37,52 @@ class General(commands.Cog,name="General Cog"):
     @commands.command(name="register",help="Registers a user using their IIIT-B domain mail id.")
     async def register(self,ctx, mailID:str):
         mailID=mailID.lower()
-        if not self.is_in_channel(ctx,AUTH_CHANNEL,False):
+        if (not self.is_in_channel(ctx,AUTH_CHANNEL)) or self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)
             return
-        if not self.validMail(mailID.lower()):
-            await ctx.author.send(f"Wrong email entered. Try again!\nNOTE : Use only college mail ID.")
+        if not smtp.validMail(mailID.lower()):
             await ctx.message.add_reaction(CROSS_EMOJI)
+            await ctx.author.send(f"Wrong email entered. Try again!\nNOTE : Use only college mail ID.")
             return
         if mailID in NON_STUDENT_MAILS:
-            await ctx.author.send(f"You can only use a student mail ID!")
             await ctx.message.add_reaction(CROSS_EMOJI)
+            await ctx.author.send(f"You can only use a student mail ID!")
             return
         
-        Key=Bcrypt.GeneratePassword()
-        Hashed=Bcrypt.Hash(Key)
+        db=sqlite.SQLite()
+        db.Connect()
+        if db.isVerified(ctx.author.id,mailID):
+            await ctx.message.add_reaction(CHECK_EMOJI)
+            await ctx.send(f"<@{ctx.message.author.id}> Welcome back to the server again! You can directly proceed to <#{ASSIGN_CHANNEL}>. :smile:")
+            #await ctx.author.remove_roles(get(ctx.guild.roles,name=NEWBIE))
+            db.Close()
+            return
 
-        if self.store_in_db(ctx,mailID,Hashed):
-            ctx.message.add_reaction(CHECK_EMOJI)
-            await ctx.author.send(f"{mailID} has been successfully mapped for you. Check your :email: to proceed further!")
-            smtp.send_mail(mailID,Key)
-            return
-        await ctx.message.add_reaction(CROSS_EMOJI)
+        Key=Bcrypt.GeneratePassword()
+        KeyHash=Bcrypt.Hash(Key)
+
+        if db.isPresentUnverified(ctx.author.id,mailID):
+            db.RemoveUser(ctx.author.id,mailID)
         
+        db.AddUser(ctx.author.name,ctx.author.id,mailID,KeyHash)
+        db.Close()
+        await ctx.message.add_reaction(CHECK_EMOJI)
+        await ctx.send(f"{mailID} has been successfully mapped to <@{ctx.message.author.id}>. Check your :email: to proceed further!")
+        smtp.send_mail(mailID,Key)
+        
+
     @commands.command(name="verify",help="Verifies the user email using an associated auto generated key.")
     async def verify(self,ctx,key:str):
-        if not self.is_in_channel(ctx,AUTH_CHANNEL,True):
+        if (not self.is_in_channel(ctx,AUTH_CHANNEL)) or self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)
             return
         db=sqlite.SQLite()
-        if db.Connect() and db.VerifyUser(ctx.author.id,Bcrypt.Hash(key)):
+        db.Connect()
+        if db.VerifyUser(ctx.author.id,key):
+            #await ctx.author.remove_roles(get(ctx.guild.roles,name=NEWBIE))
             db.Close()
             await ctx.message.add_reaction(CHECK_EMOJI)
+            await ctx.send(f"<@{ctx.author.id}> You have been verified successfully! Check my DM.")
             await ctx.author.send(f"Yay!! You made it! Welcome to IIITB discord community!")
             await ctx.author.send(f"As a last step, assign yourself a suitable role @ <#{ASSIGN_CHANNEL}> to view all the channels! :smile:\n\n"
                                     f"{RIGHT_ARROW}: scholars\n\n"
@@ -84,28 +98,33 @@ class General(commands.Cog,name="General Cog"):
                                     f"You can use !assign command for the same!\n"
                                     f"Example : !assign imt2020"
                                 )
-        else:
-            await ctx.message.add_reaction(CROSS_EMOJI)
-            await ctx.author.send(f"Sorry, couldn't verify.\nTry again!")
+            return
+
+        db.Close()
+        await ctx.message.add_reaction(CROSS_EMOJI)
+        await ctx.send(f"<@{ctx.author.id}> Sorry, couldn't verify you.\nTry again.")
 
 
     @commands.command(name="assign",help="Helps you to assign a suitable role for yourself to view the channels.")
     async def assign(self,ctx,role:str):
-        if isinstance(ctx.channel,DMChannel) or (str(ctx.message.channel.id) != str(ASSIGN_CHANNEL)):
+        if (not self.is_in_channel(ctx,ASSIGN_CHANNEL)) or self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)
-            await ctx.author.send(f"Hey! not here! Head over to <#{ASSIGN_CHANNEL}>")
             return
         role=role.lower()
         roleObj=get(ctx.guild.roles,name=role)
         db=sqlite.SQLite()
-        if (role in ROLES) and roleObj and db.Connect() and db.isVerified("dkkskfn2k5nk2nk"):
-            await ctx.author.add_roles(roleObj)
+        db.Connect()
+        if (role in ROLES) and roleObj and db.isVerified(ctx.author.id):
             await ctx.message.add_reaction(CHECK_EMOJI)
+            await ctx.author.add_roles(roleObj)
+            await ctx.author.remove_roles(get(ctx.guild.roles,name=NEWBIE))
+            await get(ctx.guild.channels,name=WELCOME_CHANNEL).send(f"Welcome <@{ctx.author.id}>.")
             db.Close()
             return
+        db.Close()
         await ctx.message.add_reaction(CROSS_EMOJI)
 
-    @commands.command(name="feature-request",help="Feature request.")
+    @commands.command(name="feature-request",help="Send a feature request to the admins. (non-anonymous request)")
     async def request(self,ctx,*,feature:str):
         await get(self.bot.get_all_channels(),name=FQ_CHANNEL).send(f"Feature request by {ctx.user.name}.\n\"{feature}\"")
         await ctx.message.add_reaction(CHECK_EMOJI)
