@@ -69,12 +69,12 @@ class Admin(commands.Cog,name="Admin Cog"):
             return
         db=sqlite.SQLite()
         if(db.Connect()):
-            unverifiedlist=db.RemoveUnverified()
-            if(unverifiedlist is not None):
+            unverifiedlist=db.RemoveUnverified()            
+            if unverifiedlist is not None:
                 for unverifieduser in unverifiedlist:
-                    UserObj=discord.utils.get(ctx.guild.users,name=unverifieduser)
-                    UserObj.kick()
+                    UserObj = await ctx.guild.fetch_member(unverifieduser[0])
                     await UserObj.send(f"You have been kicked out from {ctx.guild.name}. Contact admins.")
+                    await ctx.guild.kick(UserObj)
                 await ctx.message.add_reaction(CHECK_EMOJI)
                 db.Close()
                 return
@@ -90,9 +90,9 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.send("You cannot ban yourself.")
             await ctx.message.add_reaction(CROSS_EMOJI)
             return
-        await member.ban()
-        await ctx.message.add_reaction(CHECK_EMOJI)
         await member.send(f"You have been banned from {ctx.guild.name}. Contact admins.")
+        await ctx.guild.ban(member)
+        await ctx.message.add_reaction(CHECK_EMOJI)
         return
 
     @commands.command(name="kick",help="Kicks out the specified user from the server.")
@@ -104,9 +104,10 @@ class Admin(commands.Cog,name="Admin Cog"):
         if member is None or member==ctx.message.author:
             await ctx.send("You cannot kick out yourself.")
             return
-        await member.kick()
-        await ctx.message.add_reaction(CHECK_EMOJI)
+        
         await member.send(f"You have been kicked out from {ctx.guild.name}. Contact admins.")
+        await ctx.guild.kick(member)
+        await ctx.message.add_reaction(CHECK_EMOJI)
 
     @commands.has_role(ADMIN)
     @commands.command(name="exceldb",help="Gives the database list in an excel sheet form.")

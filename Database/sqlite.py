@@ -34,6 +34,10 @@ class SQLite:
                     name NOT LIKE 'sqlite_%';
                     """)
         existingtables=cursor.fetchone()
+        if existingtables is None:
+            print("Didn't found the required table.")
+            return False
+        
         if tablename in existingtables:
             cursor.close()
             return True
@@ -98,8 +102,6 @@ class SQLite:
                     self.conn.commit()
                     found=True
                     break
-            print(found)
-            print(self.conn.cursor().rowcount)
         return found
 
     def RemoveUnverified(self):
@@ -107,9 +109,7 @@ class SQLite:
             unverified=self.conn.execute(f"SELECT DISCORDID FROM STUDENTS WHERE VERIFIED = 0")
             self.conn.execute(f"DELETE FROM STUDENTS WHERE VERIFIED = 0")
             self.conn.commit()
-            if unverified is None:
-                unverified=[]
-            return list(unverified)
+            return unverified
         return None
     
     def EmptyDB(self):
