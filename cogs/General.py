@@ -84,7 +84,12 @@ class General(commands.Cog,name="General Cog"):
     async def assign(self,ctx,role:str):
         role=role.lower()
 
-        if (not self.is_in_channel(ctx,ASSIGN_CHANNEL)) or self.is_a_DM(ctx) or not (role in ROLES):
+        if self.is_a_DM(ctx):
+            await ctx.message.add_reaction(CROSS_EMOJI)
+            await ctx.send(f"Hey not here! Headover to <#{ASSIGN_CHANNEL}> for that.")
+            return
+
+        if (not self.is_in_channel(ctx,ASSIGN_CHANNEL)) or not (role in ROLES):
             await ctx.message.add_reaction(CROSS_EMOJI)
             return
 
