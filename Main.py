@@ -8,6 +8,9 @@ from settings import COGS
 from Database import sqlite
 
 #enable priviliged intents
+#https://stackoverflow.com/questions/46020703/smtp-authentication-error-with-django-on-heroku
+#solve the authentication problem that would arrive while using heroku and smtp gmail
+
 
 load_dotenv()
 TOKEN=os.getenv("DISCORD_TOKEN")
