@@ -1,11 +1,12 @@
+#discord
 from discord.ext import commands
 from discord.channel import DMChannel
+#constants
 from __constants import CHECK_EMOJI
 
-from os import getenv
-from dotenv import load_dotenv
-load_dotenv()
 
+
+#CP cog
 class CP(commands.Cog,name="Competitive Programming Cog"):
     def __init__(self,bot):
         self.bot=bot

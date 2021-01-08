@@ -3,6 +3,7 @@ CHECK_EMOJI="\u2705"
 UNCHECK_EMOJI="\u274e"
 CROSS_EMOJI="\u274c"
 RIGHT_ARROW="\u27a1\ufe0f"
+MAIL_EMOJI="\U0001f4e7"
 
 # enter everything in lower case
 NON_STUDENT_MAILS=[

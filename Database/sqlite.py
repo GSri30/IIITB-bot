@@ -1,12 +1,14 @@
+#os
 import os
-from pathlib import Path
+#sqlite
 import sqlite3
 from sqlite3.dbapi2 import Error
-
+#encryption
 from Bcrypt import Bcrypt
-
+#settings
 from settings import DATABASE_PATH,EXCEL_PATH
 
+#Sqlite class which contains various methods for sqlite database management
 class SQLite:
     def __init__(self,conn=None):
         self.conn=conn
@@ -25,7 +27,7 @@ class SQLite:
             print(Error)
             return False
 
-    def checkTableExists(self,tablename:str):
+    def CheckTableExists(self,tablename:str):
         cursor=self.conn.cursor()
         cursor.execute("""
                     SELECT name
@@ -35,7 +37,8 @@ class SQLite:
                     """)
         existingtables=cursor.fetchone()
         if existingtables is None:
-            print("Didn't found the required table.")
+            print("Didn't find the required table.")
+            cursor.close()
             return False
         
         if tablename in existingtables:
@@ -47,14 +50,14 @@ class SQLite:
 
     def CreateTable(self):
         cursor=self.conn.cursor()
-        if not self.checkTableExists("STUDENTS"):
+        if not self.CheckTableExists("STUDENTS"):
             cursor.execute(f'''CREATE TABLE STUDENTS
                             (   ID INTEGER PRIMARY KEY,
-                                USER TEXT NOT NULL,
-                                DISCORDID TEXT NOT NULL,
+                                USER TEXT,
+                                DISCORDID TEXT,
                                 EMAIL TEXT NOT NULL,
                                 VERIFIED INT,
-                                DISCORDHASH TEXT
+                                DISCORDHASH TEXT NOT NULL
                             );
                             ''')
             self.conn.commit()
@@ -64,52 +67,80 @@ class SQLite:
         cursor.close()
         
 
-    def AddUser(self,user:str,discordid:str,email:str,discordhash:str):
+    def AddUser(self,email:str,discordhash:str):
         if self.conn is not None:
-            self.conn.execute(f'''INSERT INTO STUDENTS (USER,DISCORDID,EMAIL,VERIFIED,DISCORDHASH)\
-                                VALUES ("{user}","{discordid}","{email}",0,"{discordhash}")
-                            ''')
+            self.conn.execute(f'''INSERT INTO STUDENTS (EMAIL,VERIFIED,DISCORDHASH)\
+                                VALUES (?,0,?)
+                            ''',(email,discordhash))
             self.conn.commit()
-            return True
+
+
+    def isPresent(self,email:str):
+        if self.conn is not None:
+            cursor=self.conn.cursor()
+            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(email,))
+            results=cursor.fetchall()
+            cursor.close()
+            return len(results)>0
         return False
 
-    def isPresentUnverified(self,userID:str,mailID:str):
+    def isVerified(self,memberID:str,mailID:str):
         if self.conn is not None:
-            verifiedBools=self.conn.execute(f"SELECT VERIFIED FROM STUDENTS WHERE DISCORDID = '{userID}' AND EMAIL = '{mailID}'")
-            if verifiedBools:
-                for vbool in verifiedBools:
-                    if not vbool:
+            cursor=self.conn.cursor()
+            if mailID is None:
+                cursor.execute(f"SELECT * FROM STUDENTS WHERE DISCORDID = ?",(memberID,))    
+            if memberID is None:
+                cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(mailID,))
+            
+            results=cursor.fetchall()
+            cursor.close()
+
+            if results:
+                for student in results:
+                    if student[4]:
                         return True
+
         return False
 
-    def RemoveUser(self,userID:str,mailID:str):
+
+    def RemoveUser(self,mailID:str):
         if self.conn is not None:
-            self.conn.execute(f"DELETE FROM STUDENTS WHERE DISCORDID = '{userID}' AND EMAIL = '{mailID}'")
+            cursor=self.conn.cursor()
+            cursor.execute(f"DELETE FROM STUDENTS WHERE EMAIL = ?",(mailID,))
             self.conn.commit()
-            return True
-        return False
+            cursor.close()
+
 
     def UpdateEmail(self):
         pass
 
-    def VerifyUser(self,userID:str,key:str):
-        found=False
+    def VerifyUser(self,memberName:str,memberID:str,mailID:str,key:str):
+        Found=False
         if self.conn is not None:
-            users=self.conn.execute(f"SELECT * FROM STUDENTS WHERE DISCORDID = '{userID}'")
-            for user in users:
-                if Bcrypt.Match(key,user[5]):
-                    self.conn.execute(f"UPDATE STUDENTS SET VERIFIED = 1 WHERE DISCORDHASH = '{user[5]}' AND DISCORDID = '{userID}'")
-                    self.conn.commit()
-                    found=True
-                    break
-        return found
+            cursor=self.conn.cursor()
+            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(mailID,))
+            results=cursor.fetchall()
+            if results is not None:
+                for member in results:
+                    FoundHash=member[5]
+                    if Bcrypt.Match(key,FoundHash):
+                        cursor.execute(f"UPDATE STUDENTS SET  USER = ?, DISCORDID = ?, VERIFIED = 1  WHERE EMAIL = ? AND DISCORDHASH = ?",(memberName,memberID,mailID,FoundHash))
+                        self.conn.commit()
+                        Found=True
+                        break
+            cursor.close()
+        return Found
+        
 
     def RemoveUnverified(self):
         if self.conn is not None:
-            unverified=self.conn.execute(f"SELECT DISCORDID FROM STUDENTS WHERE VERIFIED = 0")
-            self.conn.execute(f"DELETE FROM STUDENTS WHERE VERIFIED = 0")
+            cursor=self.conn.cursor()
+            cursor.execute(f"SELECT DISCORDID FROM STUDENTS WHERE VERIFIED = 0")
+            results=cursor.fetchall()
+            cursor.execute(f"DELETE FROM STUDENTS WHERE VERIFIED = 0")
             self.conn.commit()
-            return unverified
+            cursor.close()
+            return results
         return None
     
     def EmptyDB(self):
@@ -117,8 +148,7 @@ class SQLite:
             self.conn.execute(f"DELETE FROM STUDENTS")
             self.conn.commit()
             print("Emptied the database successfully!")
-            return True
-        return False
+            
 
     def GenerateCSV(self,excelpath:str=EXCEL_PATH):
         if self.conn is not None:
@@ -129,29 +159,12 @@ class SQLite:
                     f.write(f"{student[0]};{student[1]};{student[2]};{student[3]};{student[4]};{student[5]}\n")
             return True
         return False
-
-    # def verified(self):
-    #     if self.conn is not None:
-    #         Students=self.conn.execute(f"SELECT * FROM STUDENTS WHERE VERIFIED = 1")
-    #         return [str(student[2]) for student in Students]
-    #     return False
-
-    def isVerified(self,memberID:str,mailID:str=None):
-        if mailID is None:
-            students=self.conn.execute(f"SELECT * FROM STUDENTS WHERE DISCORDID = '{memberID}'")    
-        else:
-            students=self.conn.execute(f"SELECT * FROM STUDENTS WHERE DISCORDID = '{memberID}' AND EMAIL = '{mailID}'")
-        if students:
-            for student in students:
-                if student[4]:
-                    return True
-        return False
+    
 
     def DeleteCSV(self,excelpath:str=EXCEL_PATH):
         if os.path.exists(excelpath):
             os.remove(excelpath)
-            return True
-        return False
+            
 
     def PrintDB(self):
         if self.conn is not None:
@@ -160,4 +173,5 @@ class SQLite:
                 print(f"{student[0]} {student[1]} {student[2]} {student[3]} {student[4]} {student[5]}")
 
     def Close(self):
-        self.conn.close()
+        if self.conn is not None:
+            self.conn.close()

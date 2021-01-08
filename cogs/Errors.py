@@ -1,14 +1,21 @@
+#discord
 from discord.ext import commands
 from discord.utils import get
+#secret
+from cogs.secret import ADMIN_LOG
 
-from os import getenv,path
-from dotenv import load_dotenv
-load_dotenv()
-ADMIN_LOG=getenv("ADMIN_LOG")
-
+#Errors cog
 class Errors(commands.Cog,name="Errors Cog"):
     def __init__(self,bot):
         self.bot=bot
+
+    def channelObj(self,ctx,channel:str):
+        obj=None
+        for c in ctx.guild.channels:
+            if str(c.id) == channel:
+                obj=c
+                break
+        return obj
 
     @commands.Cog.listener()
     async def on_command_error(self,ctx, error):
@@ -17,7 +24,7 @@ class Errors(commands.Cog,name="Errors Cog"):
         elif(isinstance(error, commands.errors.MissingRequiredArgument)):
             await ctx.send(f"{error}")
         else:
-            log_channel=get(ctx.guild.channels,name=ADMIN_LOG)
+            log_channel=self.channelObj(ctx,ADMIN_LOG)
             await log_channel.send(f"{error}")
 
 def setup(bot):

@@ -1,14 +1,10 @@
+#discord
 from discord.ext import commands
 from discord.utils import get
+#secret
+from cogs.secret import NEWBIE,GUILD,VERIFICATION_CHANNEL,WELCOME_CHANNEL
 
-from os import getenv
-from dotenv import load_dotenv
-load_dotenv()
-NEWBIE=getenv("NEWBIE")
-GUILD=getenv("GUILD")
-AUTH=getenv("AUTH")
-WELCOME_CHANNEL=getenv("WELCOME")
-
+#Greetings Cog
 class Greetings(commands.Cog,name="Greetings Cog"):
     def __init__(self,bot):
         self.bot=bot
@@ -17,7 +13,9 @@ class Greetings(commands.Cog,name="Greetings Cog"):
     async def on_member_join(self,member):
         if not member.bot:
             await member.add_roles(get(get(self.bot.guilds,name=GUILD).roles,name=NEWBIE))
-            await member.send(f"Hey hii! You need to register your IIITB mail id in order to get into the server! Get over to <#{AUTH}> for registration. :smile:")
+            await member.send((f"Hey Hii! You need to verify your IIITB mail id in order to get into the server! "
+                                f"Get over to <#{VERIFICATION_CHANNEL}> for verification. :smile:"
+                                ))
             return
 
     @commands.Cog.listener()

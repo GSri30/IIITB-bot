@@ -1,11 +1,11 @@
+#discord
 from discord.ext import commands
 from discord.channel import DMChannel
+#constants
 from __constants import CHECK_EMOJI
 
-from os import getenv
-from dotenv import load_dotenv
-load_dotenv()
 
+#Couriers Cog
 class Couriers(commands.Cog,name="Couriers Cog"):
     def __init__(self,bot):
         self.bot=bot

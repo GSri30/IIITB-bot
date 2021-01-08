@@ -20,10 +20,10 @@ def validMail(mailID:str,regex:str=REGEX,domain:str=DOMAIN):
 def send_mail(RECEIVER,KEY):
 
     SUBJECT=f"Verify Email Address for IIIT-B discord server! "
-    MESSAGE=(f"Hey there!\n\nThanks for taking out your time for this!\n"
+    MESSAGE=(f"Hey there! You have been successfully registered for IIITB discord server.\n\n"
             f"To verify your email, please use the below key : "
-            f"\n'{KEY}'\n You can use my !verify command in the same channel. "
-            f"\n\n!verify {KEY}\n\nIn case of any issues, contact any of the server admins. "
+            f"\n'{KEY}'\n You can use !verify command in the verification channel. (!verify your-email-id your-key)"
+            f"\n\n!verify {RECEIVER} {KEY}\n\nIn case of any issues, contact any of the server admins. "
             f"DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
             )
 
