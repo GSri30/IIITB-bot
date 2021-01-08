@@ -117,6 +117,9 @@ class General(commands.Cog,name="General Cog"):
         await ctx.message.add_reaction(CHECK_EMOJI)
         await self.channelObj(ctx,DEVELOPERS_CHANNEL).send(f"Feature request by {ctx.message.author.name}.\n\"{feature}\"")
         
+    @commands.command(name="test")
+    async def test(self,ctx,*,message):
+        await ctx.message.delete()
 
 
 def setup(bot):
