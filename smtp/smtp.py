@@ -22,7 +22,7 @@ def send_mail(RECEIVER,KEY):
     SUBJECT=f"Verify Email Address for IIIT-B discord server! "
     MESSAGE=(f"Hey there! You have been successfully registered for IIITB discord server.\n\n"
             f"To verify your email, please use the below key : "
-            f"\n'{KEY}'\n You can use !verify command in the verification channel. (!verify your-email-id your-key)"
+            f"\n'{KEY}'\n Check the rules-page in the server for more information."
             f"\n\n!verify {RECEIVER} {KEY}\n\nIn case of any issues, contact any of the server admins. "
             f"DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
             )
