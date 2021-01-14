@@ -1,12 +1,19 @@
 #os
 import os
 #sqlite
+#old
 import sqlite3
 from sqlite3.dbapi2 import Error
+#new
+
 #encryption
 from Bcrypt import Bcrypt
 #settings
 from settings import DATABASE_PATH,EXCEL_PATH
+
+#use postgresql
+#https://github.com/EverWinter23/postgres-heroku/tree/master/src
+#https://devcenter.heroku.com/articles/heroku-postgresql#connecting-in-python
 
 #Sqlite class which contains various methods for sqlite database management
 class SQLite:
@@ -103,10 +110,13 @@ class SQLite:
         return False
 
 
-    def RemoveUser(self,mailID:str):
+    def RemoveUser(self,mailID:str=None,memberID:str=None):
         if self.conn is not None:
             cursor=self.conn.cursor()
-            cursor.execute(f"DELETE FROM STUDENTS WHERE EMAIL = ?",(mailID,))
+            if mailID:
+                cursor.execute(f"DELETE FROM STUDENTS WHERE EMAIL = ?",(mailID,))
+            if memberID:
+                cursor.execute(f"DELETE FROM STUDENTS WHERE DISCORDID = ?",(memberID,))
             self.conn.commit()
             cursor.close()
 
@@ -156,7 +166,7 @@ class SQLite:
                 Students=self.conn.execute(f"SELECT * FROM STUDENTS")
                 f.write(f"S.No;Student;DiscordID;Email;isVerified;UniqueHash\n")
                 for student in Students:
-                    f.write(f"{student[0]};{student[1]};{student[2]};{student[3]};{student[4]};{student[5]}\n")
+                    f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]}\n")
             return True
         return False
     

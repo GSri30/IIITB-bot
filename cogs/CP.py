@@ -1,8 +1,11 @@
 #discord
 from discord.ext import commands
 from discord.channel import DMChannel
+from discord.utils import get
 #constants
-from __constants import CHECK_EMOJI
+from __constants import CHECK_EMOJI,CROSS_EMOJI
+#secret
+from cogs.secret import NEWBIE
 
 
 
@@ -14,10 +17,18 @@ class CP(commands.Cog,name="Competitive Programming Cog"):
     def is_a_DM(self,ctx):
         return isinstance(ctx.channel,DMChannel)
 
-    @commands.command(name="randomq",help="Gives a random codeforces question of moderate-difficulty level")
+    def is_a_newbie(self,ctx):
+        ok=get(ctx.author.roles,name=NEWBIE)
+        return ok is not None
+
+    @commands.command(name="random-cf")
     async def randomQ(self,ctx):
+        if self.is_a_DM(ctx):
+            await ctx.message.add_reaction(CROSS_EMOJI)
+            await ctx.author.send(f"Sorry. You cannot DM me for this! :neutral_face:")
+            return
         await ctx.message.add_reaction(CHECK_EMOJI)
-        await ctx.send(f"Feature coming soon! :smile:\n")
+        await ctx.send(f"Feature coming soon! :smile:")
 
 
 def setup(bot):

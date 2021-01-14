@@ -12,6 +12,11 @@ from Database import sqlite
 #solve the authentication problem that would arrive while using heroku and smtp gmail
 
 
+#While using iiitb mail for bot, use smtp-mail.outlook.com
+
+#For now, the bot cannot be made as a general college bot hosted on somewhere, though its possible.
+#The entire code can be made more abstract by inheritance,decorators,base classes etc
+
 load_dotenv()
 TOKEN=os.getenv("DISCORD_TOKEN")
 
@@ -20,13 +25,14 @@ def main():
     intents=Intents.default()
     intents.members=True
     
+    #Don't change '!'
     bot=commands.Bot(command_prefix="!",intents=intents)
+    #,help_command=None
     for PATH in COGS:
         bot.load_extension(PATH)
     db=sqlite.SQLite()
     db.init()
     bot.run(TOKEN)
-
 
 
 if __name__ == "__main__":
