@@ -19,7 +19,7 @@ class General(commands.Cog,name="General Cog"):
     def is_a_DM(self,ctx):
         return isinstance(ctx.channel,DMChannel)
 
-    @commands.command(name="feature-request")
+    @commands.command(name="feature-request",help="Send a feature request to the admins. (non-anonymous request)")
     async def request(self,ctx,*,feature:str):
         if self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)
@@ -30,7 +30,7 @@ class General(commands.Cog,name="General Cog"):
         dev_channel=get(ctx.guild.channels,id=int(DEVELOPERS_CHANNEL))
         await dev_channel.send(f"Feature request by {ctx.message.author}.\n\"{feature}\"")
 
-    @commands.command(name="flag")
+    @commands.command(name="flag",hidden=True)
     async def flag(self,ctx):
         await ctx.author.send(f"Too many CTFs ahh :joy: Nothing special here.")
 

@@ -3,13 +3,10 @@ from discord.ext import commands
 from discord.utils import get
 from discord.channel import DMChannel
 #secret
-from cogs.secret import ADMIN_LOG, GUILD,NEWBIE
+from cogs.secret import ADMIN_LOG, GUILD
 #constants
 from __constants import CROSS_EMOJI
 
-#!work on this
-#Use private msg only etc decorators
-#refer exception-hierarchy
 
 #Errors cog
 class Errors(commands.Cog,name="Errors Cog"):

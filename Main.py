@@ -27,7 +27,7 @@ def main():
     
     #Don't change '!'
     bot=commands.Bot(command_prefix="!",intents=intents)
-    #,help_command=None
+    
     for PATH in COGS:
         bot.load_extension(PATH)
     db=sqlite.SQLite()

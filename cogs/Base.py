@@ -4,8 +4,6 @@ from discord.utils import get
 from discord import Activity,ActivityType
 #secret
 from cogs.secret import NEWBIE,GUILD,RULES_CHANNEL, WELCOME_CHANNEL
-#settings
-from settings import HELP
 #constants
 from __constants import _GREETINGS,GREETINGS
 #other
@@ -35,10 +33,6 @@ class Base(commands.Cog,name="Base Cog"):
         await self.bot.change_presence(activity=Activity(type=ActivityType.listening, name="!help"))
         print(f'{self.bot.user.name} has connected to Discord!')
 
-    # @commands.command(name="help")
-    # async def help(self,ctx):
-    #     pass
-    
 
 def setup(bot):
     bot.add_cog(Base(bot))

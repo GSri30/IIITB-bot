@@ -5,11 +5,11 @@ from discord.channel import DMChannel
 #embeds
 from cogs.Embeds import Embeds
 #constants
-from __constants import CHECK_EMOJI,CROSS_EMOJI,RIGHT_ARROW,ROLES,GREETINGS,_GREETINGS
+from __constants import CHECK_EMOJI,ROLES,GREETINGS,_GREETINGS
 #database
 from Database import sqlite
 #secret
-from cogs.secret import GUILD, VERIFICATION_CHANNEL,ASSIGN_CHANNEL,WELCOME_CHANNEL,DEVELOPERS_CHANNEL,NEWBIE,RULES_CHANNEL
+from cogs.secret import GUILD,WELCOME_CHANNEL,NEWBIE,RULES_CHANNEL
 #other
 import random
 import asyncio
@@ -30,7 +30,7 @@ class Authentication(commands.Cog,name="Authentication Cog"):
         return ok is not None
 
     @commands.cooldown(3,30,commands.BucketType.user)
-    @commands.command(name="verify")
+    @commands.command(name="verify",help="Verifies the user email using an associated auto generated key.")
     @commands.dm_only()
     async def verify(self,ctx,emailID:str,key:str):
 
@@ -76,7 +76,7 @@ class Authentication(commands.Cog,name="Authentication Cog"):
 
 
     @commands.cooldown(3,30,commands.BucketType.user)
-    @commands.command(name="assign")
+    @commands.command(name="assign",help="Helps you to assign a suitable role for yourself to view the channels.")
     @commands.dm_only()
     async def assign(self,ctx,role:str):
     

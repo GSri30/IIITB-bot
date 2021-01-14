@@ -3,9 +3,9 @@ from discord.ext import commands
 from discord.channel import DMChannel
 import discord
 #constants
-from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI,MAIL_EMOJI,NON_STUDENT_MAILS,ALL_ROLES
+from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI,MAIL_EMOJI,NON_STUDENT_MAILS
 #secret
-from cogs.secret import ADMIN,SAC_CHANNEL,REGISTRATION_CHANNEL,NEWBIE,VERIFICATION_CHANNEL,ASSIGN_CHANNEL
+from cogs.secret import ADMIN,REGISTRATION_CHANNEL,NEWBIE
 #mail
 from smtp import smtp
 #encryption
@@ -30,7 +30,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         return ok is not None
        
 
-    @commands.command(name="register")
+    @commands.command(name="register",help="Registers a user using their IIIT-B domain mail id.")
     @commands.has_role(ADMIN)
     async def register(self,ctx,*arguments):
         
@@ -100,7 +100,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         db.Close()
 
 
-    @commands.command(name="un-register")
+    @commands.command(name="un-register",help="Un-registers a user using their IIIT-B domain mail id.")
     @commands.has_role(ADMIN)
     async def un_register(self,ctx,mailID:str):
         if not self.is_in_channel(ctx,REGISTRATION_CHANNEL):
@@ -117,7 +117,7 @@ class Admin(commands.Cog,name="Admin Cog"):
 
     #filter---> all users who have @newbie role
 
-    @commands.command(name="filter-ban")
+    @commands.command(name="filter-ban",help="Filters out the unauthorized users and bans them from the server.")
     @commands.has_role(ADMIN)
     async def filter_ban(self,ctx):
         
@@ -134,7 +134,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         await ctx.send(summary)
 
 
-    @commands.command(name="filter-kick")
+    @commands.command(name="filter-kick",help="Filters out the unauthorized users and kicks them out from the server.")
     @commands.has_role(ADMIN)
     async def filter_kick(self,ctx): 
         
@@ -151,7 +151,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         await ctx.send(summary)
 
 
-    @commands.command(name="ban")
+    @commands.command(name="ban",help="Bans the specified user from the server.")
     @commands.has_role(ADMIN)
     async def ban(self,ctx,member:discord.User=None,reason=None):
        
@@ -169,7 +169,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         db.RemoveUser(memberID=member.id)
         db.Close()
 
-    @commands.command(name="kick")
+    @commands.command(name="kick",help="Kicks out the specified user from the server.")
     @commands.has_role(ADMIN)
     async def kick(self,ctx,member:discord.User=None,reason=None):
         
@@ -188,7 +188,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         db.Close()
 
 
-    @commands.command(name="count-role")
+    @commands.command(name="count-role",help="Returns the count of members of specified role in the server.")
     @commands.has_role(ADMIN)
     async def count_role(self,ctx,role:str):
         
@@ -212,7 +212,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         await ctx.send(summary)
 
 
-    @commands.command(name="list")
+    @commands.command(name="list",help="Gives the database list in an excel sheet form.")
     @commands.has_role(ADMIN)
     async def ExcelForm(self,ctx):
         db=sqlite.SQLite()
@@ -230,7 +230,7 @@ class Admin(commands.Cog,name="Admin Cog"):
         await ctx.message.add_reaction(CROSS_EMOJI)
 
 
-    @commands.command(name="update-roles",help="Assigns role 2 to all the members having role 1.")
+    @commands.command(name="update-roles",help="Assigns 'role 2' to all the members having 'role 1'.")
     @commands.has_role(ADMIN)
     async def UpdateRoles(self,ctx,Role1:str,Role2:str):
         if self.is_a_DM(ctx):

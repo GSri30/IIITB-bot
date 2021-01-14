@@ -21,7 +21,7 @@ class CP(commands.Cog,name="Competitive Programming Cog"):
         ok=get(ctx.author.roles,name=NEWBIE)
         return ok is not None
 
-    @commands.command(name="random-cf")
+    @commands.command(name="random-cf",help="Gives a random Codeforces question.")
     async def randomQ(self,ctx):
         if self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)
