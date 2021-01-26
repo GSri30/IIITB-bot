@@ -13,6 +13,7 @@ ADMIN_LOG=getenv("ADMIN_LOG")
 SAC_CHANNEL=getenv("SAC")
 DEVELOPERS_CHANNEL=getenv("DEVELOPERS")
 WELCOME_CHANNEL=getenv("WELCOME")
+CP_CHANNEL=getenv("CP")
 
 #roles
 ADMIN=getenv("ADMIN")
@@ -23,3 +24,7 @@ GUILD=getenv("GUILD")
 
 #database
 DATABASE_URL=getenv("DATABASE_URL")
+
+#Clist API
+CLIST_USERNAME=getenv("CLIST_USERNAME")
+CLIST_KEY=getenv("CLIST_KEY")

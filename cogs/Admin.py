@@ -38,63 +38,65 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.message.add_reaction(CROSS_EMOJI)
             return
 
+        async with ctx.typing():
+
+            sentmails=0
+            success=""
+            failed=""
+            summary=""
+            registered=""
+
+            db=sqlite.SQLite()
+            db.Connect()
+            
+            for mailID in arguments:
+                mailID=mailID.lower()
+
+                if (not smtp.validMail(mailID.lower())) or (mailID in NON_STUDENT_MAILS):
+                    failed+=f"{mailID}\n"
+                    continue
+                    
+                isPresent=db.isPresent(mailID)
+                isVerified=db.isVerified(None,mailID)
+
+                if isPresent and isVerified:
+                    registered+=f"{mailID}\n"
+                    continue
+
+                Key=Bcrypt.GeneratePassword()
+                KeyHash=Bcrypt.Hash(Key)
+
+                if isPresent and (not isVerified):
+                    db.RemoveUser(mailID=mailID)
+                
+                db.AddUser(mailID,KeyHash)
+            
+                smtp.send_mail(mailID,Key)
+
+                success+=f"{mailID}\n"
+
+                sentmails+=1
+                
+            summary+=f"{MAIL_EMOJI} Successfully sent {sentmails} mail(s).\n\n"
+
+            if success:
+                summary+=(
+                        f"{CHECK_EMOJI} Successfully sent mails to : \n"
+                        f"{success}\n"
+                        )
+            if failed:
+                summary+=(
+                        f"{CROSS_EMOJI} Failed sending mails to : \n"
+                        f"{failed}\n"
+                        )
+            if registered:
+                summary+=(
+                        f"{UNCHECK_EMOJI} Found few already registered mails : (skipped them)\n"
+                        f"{registered}\n"
+                        )
+        
         await ctx.message.add_reaction(CHECK_EMOJI)
 
-        sentmails=0
-        success=""
-        failed=""
-        summary=""
-        registered=""
-
-        db=sqlite.SQLite()
-        db.Connect()
-        
-        for mailID in arguments:
-            mailID=mailID.lower()
-
-            if (not smtp.validMail(mailID.lower())) or (mailID in NON_STUDENT_MAILS):
-                failed+=f"{mailID}\n"
-                continue
-                
-            isPresent=db.isPresent(mailID)
-            isVerified=db.isVerified(None,mailID)
-
-            if isPresent and isVerified:
-                registered+=f"{mailID}\n"
-                continue
-
-            Key=Bcrypt.GeneratePassword()
-            KeyHash=Bcrypt.Hash(Key)
-
-            if isPresent and (not isVerified):
-                db.RemoveUser(mailID=mailID)
-            
-            db.AddUser(mailID,KeyHash)
-           
-            smtp.send_mail(mailID,Key)
-
-            success+=f"{mailID}\n"
-
-            sentmails+=1
-            
-        summary+=f"{MAIL_EMOJI} Successfully sent {sentmails} mail(s).\n\n"
-
-        if success:
-            summary+=(
-                    f"{CHECK_EMOJI} Successfully sent mails to : \n"
-                    f"{success}\n"
-                    )
-        if failed:
-            summary+=(
-                    f"{CROSS_EMOJI} Failed sending mails to : \n"
-                    f"{failed}\n"
-                    )
-        if registered:
-            summary+=(
-                    f"{UNCHECK_EMOJI} Found few already registered mails : (skipped them)\n"
-                    f"{registered}\n"
-                    )
-        
         await ctx.send(summary)
 
         db.Close()
@@ -107,10 +109,11 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.message.add_reaction(CROSS_EMOJI)
             return
 
-        db=sqlite.SQLite()
-        db.Connect()
-        db.RemoveUser(mailID=mailID)
-        db.Close()
+        async with ctx.typing():
+            db=sqlite.SQLite()
+            db.Connect()
+            db.RemoveUser(mailID=mailID)
+            db.Close()
 
         await ctx.message.add_reaction(CHECK_EMOJI)
 
@@ -123,12 +126,13 @@ class Admin(commands.Cog,name="Admin Cog"):
         
         summary="Successfully banned member(s) : \n"
 
-        for member in ctx.guild.members:
-            ok=discord.utils.get(member.roles,name=NEWBIE)
-            if ok:
-                await member.send(f"<@{member.id}> You have been banned from {ctx.guild.name}. Contact admins.")
-                summary+=f"{str(member)}\n"
-                await ctx.guild.ban(member,reason=f"{ctx.author} used filter ban.")
+        async with ctx.typing():
+            for member in ctx.guild.members:
+                ok=discord.utils.get(member.roles,name=NEWBIE)
+                if ok:
+                    await member.send(f"<@{member.id}> You have been banned from {ctx.guild.name}. Contact admins.")
+                    summary+=f"{str(member)}\n"
+                    await ctx.guild.ban(member,reason=f"{ctx.author} used filter ban.")
 
         await ctx.message.add_reaction(CHECK_EMOJI)
         await ctx.send(summary)
@@ -140,12 +144,13 @@ class Admin(commands.Cog,name="Admin Cog"):
         
         summary="Successfully kicked out member(s) : \n"
 
-        for member in ctx.guild.members:
-            ok=discord.utils.get(member.roles,name=NEWBIE)
-            if ok:
-                await member.send(f"<@{member.id}> You have been kicked out from {ctx.guild.name}. Contact admins.")
-                summary+=f"{str(member)}\n"
-                await ctx.guild.kick(member,reason=f"{ctx.author} used filter kick.")
+        async with ctx.typing():
+            for member in ctx.guild.members:
+                ok=discord.utils.get(member.roles,name=NEWBIE)
+                if ok:
+                    await member.send(f"<@{member.id}> You have been kicked out from {ctx.guild.name}. Contact admins.")
+                    summary+=f"{str(member)}\n"
+                    await ctx.guild.kick(member,reason=f"{ctx.author} used filter kick.")
             
         await ctx.message.add_reaction(CHECK_EMOJI)
         await ctx.send(summary)
@@ -160,14 +165,16 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.send("You cannot ban yourself.")
             return
 
+        async with ctx.typing():
+            await member.send(f"<@{member.id}> You have been banned from {ctx.guild.name}. Contact admins.")
+            await ctx.guild.ban(member,reason=f"{ctx.author} used ban command.")
+            
+            db=sqlite.SQLite()
+            db.Connect()
+            db.RemoveUser(memberID=member.id)
+            db.Close()
+
         await ctx.message.add_reaction(CHECK_EMOJI)
-        await member.send(f"<@{member.id}> You have been banned from {ctx.guild.name}. Contact admins.")
-        await ctx.guild.ban(member,reason=f"{ctx.author} used ban command.")
-        
-        db=sqlite.SQLite()
-        db.Connect()
-        db.RemoveUser(memberID=member.id)
-        db.Close()
 
     @commands.command(name="kick",help="Kicks out the specified user from the server.")
     @commands.has_role(ADMIN)
@@ -178,35 +185,39 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.send("You cannot kick out yourself.")
             return
 
-        await ctx.message.add_reaction(CHECK_EMOJI)
-        await member.send(f"<@{member.id}> You have been kicked out from {ctx.guild.name}. Contact admins.")
-        await ctx.guild.kick(member,reason=f"{ctx.author} used kick command.")
+        async with ctx.typing():    
+            await member.send(f"<@{member.id}> You have been kicked out from {ctx.guild.name}. Contact admins.")
+            await ctx.guild.kick(member,reason=f"{ctx.author} used kick command.")
 
-        db=sqlite.SQLite()
-        db.Connect()
-        db.RemoveUser(memberID=member.id)
-        db.Close()
+            db=sqlite.SQLite()
+            db.Connect()
+            db.RemoveUser(memberID=member.id)
+            db.Close()
+        
+        await ctx.message.add_reaction(CHECK_EMOJI)
 
 
     @commands.command(name="count-role",help="Returns the count of members of specified role in the server.")
     @commands.has_role(ADMIN)
     async def count_role(self,ctx,role:str):
         
-        ok=discord.utils.get(ctx.guild.roles,name=role)
+        async with ctx.typing():
+            ok=discord.utils.get(ctx.guild.roles,name=role)
         
         if not ok:
             await ctx.message.add_reaction(CROSS_EMOJI)
             await ctx.send("Enter a valid role.")
             return
 
-        count=0
-        summary=f"Total count of {role} : "
-        for member in ctx.guild.members:
-            for r in member.roles:
-                if str(r.name) == role:
-                    count+=1
-            
-        summary+=str(count)
+        async with ctx.typing():
+            count=0
+            summary=f"Total count of {role} : "
+            for member in ctx.guild.members:
+                for r in member.roles:
+                    if str(r.name) == role:
+                        count+=1
+                
+            summary+=str(count)
 
         await ctx.message.add_reaction(CHECK_EMOJI)
         await ctx.send(summary)
@@ -215,9 +226,10 @@ class Admin(commands.Cog,name="Admin Cog"):
     @commands.command(name="list",help="Gives the database list in an excel sheet form.")
     @commands.has_role(ADMIN)
     async def ExcelForm(self,ctx):
-        db=sqlite.SQLite()
-        db.Connect()
-        ok=db.GenerateCSV()
+        async with ctx.typing():
+            db=sqlite.SQLite()
+            db.Connect()
+            ok=db.GenerateCSV()
 
         if ok:
             await ctx.message.add_reaction(CHECK_EMOJI)
@@ -226,8 +238,8 @@ class Admin(commands.Cog,name="Admin Cog"):
             db.Close()
             return
 
-        db.Close()
         await ctx.message.add_reaction(CROSS_EMOJI)
+        db.Close()
 
 
     @commands.command(name="update-roles",help="Assigns 'role 2' to all the members having 'role 1'.")
@@ -237,8 +249,9 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.message.add_reaction(CROSS_EMOJI)
             return
         
-        obj1=discord.utils.get(ctx.guild.roles,name=Role1)
-        obj2=discord.utils.get(ctx.guild.roles,name=Role2)
+        async with ctx.typing():
+            obj1=discord.utils.get(ctx.guild.roles,name=Role1)
+            obj2=discord.utils.get(ctx.guild.roles,name=Role2)
 
         if obj1 is None:
             await ctx.message.add_reaction(CROSS_EMOJI)
@@ -250,15 +263,15 @@ class Admin(commands.Cog,name="Admin Cog"):
             await ctx.send("Enter a valid role 2.")
             return
 
-        count=0
-        await ctx.message.add_reaction(CHECK_EMOJI)
-
-        for member in ctx.guild.members:
-            ok=discord.utils.get(member.roles,name=Role1)
-            if ok:
-                await member.add_roles(obj2)
-                count+=1
+        async with ctx.typing():
+            count=0
+            for member in ctx.guild.members:
+                ok=discord.utils.get(member.roles,name=Role1)
+                if ok:
+                    await member.add_roles(obj2)
+                    count+=1
             
+        await ctx.message.add_reaction(CHECK_EMOJI)
         await ctx.send(f"Updated roles of {count} member(s) successfully!")
 
 

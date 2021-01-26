@@ -34,5 +34,6 @@ class General(commands.Cog,name="General Cog"):
     async def flag(self,ctx):
         await ctx.author.send(f"Too many CTFs ahh :joy: Nothing special here.")
 
+        
 def setup(bot):
     bot.add_cog(General(bot))
