@@ -1,6 +1,10 @@
 from pathlib import Path
 import os
 
+# Turn 'ON' if you want to use production DB instead of a mysql db
+# Else 'OFF' to use mysql db
+
+DEVELOPMENT="ON"
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -24,17 +28,3 @@ COGS=[
     "cogs.Couriers",
     "cogs.CP",
 ]
-
-
-# f"{RIGHT_ARROW}: scholars\n\n"
-# f"{RIGHT_ARROW}: imt2016\n\n"
-# f"{RIGHT_ARROW}: imt2017\n\n"
-# f"{RIGHT_ARROW}: imt2018\n\n"
-# f"{RIGHT_ARROW}: mt2019\n\n"
-# f"{RIGHT_ARROW}: dt2019\n\n"
-# f"{RIGHT_ARROW}: imt2019\n\n"
-# f"{RIGHT_ARROW}: mt2020\n\n"
-# f"{RIGHT_ARROW}: dt2020\n\n"
-# f"{RIGHT_ARROW}: imt2020\n\n"
-# f"You can use !assign command for the same!\n"
-# f"Example : !assign imt2020"

@@ -9,13 +9,11 @@ import mysql.connector
 #encryption
 from Bcrypt import Bcrypt
 #settings
-from settings import DATABASE_PATH,EXCEL_PATH
+from settings import DATABASE_PATH,EXCEL_PATH,DEVELOPMENT
 #secrets
 from dotenv import load_dotenv
 
 load_dotenv()
-DEVELOPMENT=os.getenv("DEVELOPMENT")
-
 
 MYSQL_USER=os.getenv("MYSQL_USER")
 MYSQL_ROOT_PASSWORD=os.getenv("MYSQL_ROOT_PASSWORD")
@@ -43,7 +41,8 @@ class SQL:
                 conn=mysql.connector.connect(
                     host=MYSQL_HOST,
                     user=MYSQL_USER,
-                    password=MYSQL_ROOT_PASSWORD
+                    password=MYSQL_PASSWORD,
+                    database=MYSQL_DATABASE
                 )
             else:
                 print("Using sqlite")
@@ -55,47 +54,6 @@ class SQL:
         except Error:
             print(Error)
             return False
-
-    # Remove
-    # def CheckTableExists(self,tablename:str):
-    #     cursor=self.conn.cursor()
-    #     cursor.execute("""
-    #                 SELECT name
-    #                 FROM sqlite_master
-    #                 WHERE type = 'table' AND 
-    #                 name NOT LIKE 'sqlite_%';
-    #                 """)
-    #     existingtables=cursor.fetchone()
-    #     if existingtables is None:
-    #         print("Didn't find the required table.")
-    #         cursor.close()
-    #         return False
-        
-    #     if tablename in existingtables:
-    #         cursor.close()
-    #         return True
-
-    #     cursor.close()
-    #     return False
-
-    # Remove
-    # def CreateTable(self):
-    #     cursor=self.conn.cursor()
-    #     if not self.CheckTableExists("STUDENTS"):
-    #         cursor.execute(f'''CREATE TABLE STUDENTS
-    #                         (   ID INTEGER PRIMARY KEY,
-    #                             USER TEXT,
-    #                             DISCORDID TEXT,
-    #                             EMAIL TEXT NOT NULL,
-    #                             VERIFIED INT,
-    #                             DISCORDHASH TEXT NOT NULL
-    #                         );
-    #                         ''')
-    #         self.conn.commit()
-    #         print("Table created successfully")
-    #     else:
-    #         print("Using existing table.")
-    #     cursor.close()
 
     def CreateTable(self):
         cursor=self.conn.cursor()
