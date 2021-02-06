@@ -17,7 +17,7 @@ def validMail(mailID:str,regex:str=REGEX,domain:str=DOMAIN):
 
 def send_mail(RECEIVER,KEY):
 
-    SUBJECT=f"Verify Email Address for IIIT-B discord server! "
+    SUBJECT=f"Verify Email Address for IIIT-B discord server "
     MESSAGE=(f"Hey there! You have been successfully registered for IIITB discord server.\n\n"
             f"To verify your email, please use the below key : "
             f"\n'{KEY}'\n Check the rules-page in the server for more information."

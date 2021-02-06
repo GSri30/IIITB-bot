@@ -7,7 +7,7 @@ from cogs.Embeds import Embeds
 #constants
 from __constants import CHECK_EMOJI,ROLES,GREETINGS,_GREETINGS
 #database
-from Database import sqlite
+from Database import sql
 #secret
 from cogs.secret import GUILD,WELCOME_CHANNEL,NEWBIE,RULES_CHANNEL
 #other
@@ -42,7 +42,7 @@ class Authentication(commands.Cog,name="Authentication Cog"):
             return
 
         async with ctx.typing():
-            db=sqlite.SQLite()
+            db=sql.SQL()
             db.Connect()
 
             isPresent=db.isPresent(emailID)
@@ -64,21 +64,35 @@ class Authentication(commands.Cog,name="Authentication Cog"):
             ok=db.VerifyUser(str(ctx.message.author),ctx.message.author.id,emailID,key)
         
         if ok:
-            db.Close()
-            await ctx.send(f"<@{ctx.author.id}> Yay!! You have been verified successfully!")
             async with ctx.typing():
-                await asyncio.sleep(1.5)
+                batch=db.getBatch(emailID)
+            db.Close()
+            await ctx.send(f"<@{ctx.author.id}> Yay!! You have been verified successfully and given {batch} role!")
             intro=Embeds.IntroEmbed(self.bot,str(ctx.message.author),emailID,str(ctx.message.author.id))
             await ctx.author.send(embed=intro)
-            async with ctx.typing():
-                await asyncio.sleep(1.5)
-            await ctx.author.send(f"As a last step, assign yourself a suitable role to view all the channels! :smile:\n(Refer <#{RULES_CHANNEL}> if you have any doubts).")
+
+            guild=get(self.bot.guilds,name=GUILD)
+            members=guild.members
+            roles=guild.roles
+            role_obj=get(roles,name=batch)
+            user_obj=get(members,name=ctx.author.name)
+
+            await user_obj.add_roles(role_obj)
+            await user_obj.remove_roles(get(roles,name=NEWBIE))
+
+            greeting=random.choice(GREETINGS).replace(_GREETINGS, f"<@{ctx.author.id}>")
+            await get(guild.channels,id=int(WELCOME_CHANNEL)).send(greeting)
+
+            # async with ctx.typing():
+            #     await asyncio.sleep(1.5)
+            # await ctx.author.send(f"As a last step, assign yourself a suitable role to view all the channels! :smile:\n(Refer <#{RULES_CHANNEL}> if you have any doubts).")
             return
 
         db.Close()
         await ctx.send(f"<@{ctx.author.id}> Sorry, couldn't verify you.\nTry again.")
 
 
+    # Modify command to assign to a club
 
     @commands.cooldown(3,30,commands.BucketType.user)
     @commands.command(name="assign",help="Helps you to assign a suitable role for yourself to view the channels.")
@@ -111,7 +125,7 @@ class Authentication(commands.Cog,name="Authentication Cog"):
             return
 
         async with ctx.typing():
-            db=sqlite.SQLite()
+            db=sql.SQL()
             db.Connect()
             isVerified=db.isVerified(ctx.author.id,None)
 
@@ -132,6 +146,20 @@ class Authentication(commands.Cog,name="Authentication Cog"):
         async with ctx.typing():
             await asyncio.sleep(1.5)
         await ctx.send(f"<@{ctx.author.id}> Wait! Think you are already verified? Re-check using !verify command. :confused:\nTip : You can only use the same discord account from which you verified your Mail ID.")
+
+    @commands.command(name="leave",help="Removes you from server and also from the mapping")
+    @commands.dm_only()
+    async def leave(self,ctx):
+        async with ctx.typing():
+            db=sql.SQL()
+            db.Connect()
+            db.RemoveUser(memberID=ctx.author.id)
+            db.Close()
+
+        await ctx.send("Hope you had a great time with us. Hope to see you again in the server. Bye! :smile:")
+
+        await get(self.bot.guilds,name=GUILD).kick(ctx.author,reason=f"{ctx.author} used leave command.")
+
 
 def setup(bot):
     bot.add_cog(Authentication(bot))

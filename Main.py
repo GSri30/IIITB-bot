@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from settings import COGS
 
 #Database
-from Database import sqlite
+from Database import sql
 
 load_dotenv()
 TOKEN=os.getenv("DISCORD_TOKEN")
@@ -20,7 +20,8 @@ def main():
     
     for PATH in COGS:
         bot.load_extension(PATH)
-    db=sqlite.SQLite()
+    
+    db=sql.SQL()
     db.init()
     bot.run(TOKEN)
 
