@@ -1,6 +1,7 @@
 #discord
 from discord.ext import commands
 from discord.channel import DMChannel
+from discord.utils import get
 import discord
 #constants
 from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI,MAIL_EMOJI,NON_STUDENT_MAILS
@@ -11,7 +12,7 @@ from smtp import smtp
 #encryption
 from Bcrypt import Bcrypt
 #database
-from Database import sqlite
+from Database import sql
 
 
 #Admin cog
@@ -32,10 +33,14 @@ class Admin(commands.Cog,name="Admin Cog"):
 
     @commands.command(name="register",help="Registers a user using their IIIT-B domain mail id.")
     @commands.has_role(ADMIN)
-    async def register(self,ctx,*arguments):
+    async def register(self,ctx,batch:str,*arguments):
         
         if not self.is_in_channel(ctx,REGISTRATION_CHANNEL):
             await ctx.message.add_reaction(CROSS_EMOJI)
+            return
+
+        if not get(ctx.guild.roles,name=batch):
+            await ctx.send("Enter a valid batch role. (case-sensitive)")
             return
 
         async with ctx.typing():
@@ -46,7 +51,7 @@ class Admin(commands.Cog,name="Admin Cog"):
             summary=""
             registered=""
 
-            db=sqlite.SQLite()
+            db=sql.SQL()
             db.Connect()
             
             for mailID in arguments:
@@ -69,7 +74,7 @@ class Admin(commands.Cog,name="Admin Cog"):
                 if isPresent and (not isVerified):
                     db.RemoveUser(mailID=mailID)
                 
-                db.AddUser(mailID,KeyHash)
+                db.AddUser(mailID,batch,KeyHash)
             
                 smtp.send_mail(mailID,Key)
 
@@ -110,7 +115,7 @@ class Admin(commands.Cog,name="Admin Cog"):
             return
 
         async with ctx.typing():
-            db=sqlite.SQLite()
+            db=sql.SQL()
             db.Connect()
             db.RemoveUser(mailID=mailID)
             db.Close()
@@ -169,7 +174,7 @@ class Admin(commands.Cog,name="Admin Cog"):
             await member.send(f"<@{member.id}> You have been banned from {ctx.guild.name}. Contact admins.")
             await ctx.guild.ban(member,reason=f"{ctx.author} used ban command.")
             
-            db=sqlite.SQLite()
+            db=sql.SQL()
             db.Connect()
             db.RemoveUser(memberID=member.id)
             db.Close()
@@ -189,7 +194,7 @@ class Admin(commands.Cog,name="Admin Cog"):
             await member.send(f"<@{member.id}> You have been kicked out from {ctx.guild.name}. Contact admins.")
             await ctx.guild.kick(member,reason=f"{ctx.author} used kick command.")
 
-            db=sqlite.SQLite()
+            db=sql.SQL()
             db.Connect()
             db.RemoveUser(memberID=member.id)
             db.Close()
@@ -227,13 +232,13 @@ class Admin(commands.Cog,name="Admin Cog"):
     @commands.has_role(ADMIN)
     async def ExcelForm(self,ctx):
         async with ctx.typing():
-            db=sqlite.SQLite()
+            db=sql.SQL()
             db.Connect()
             ok=db.GenerateCSV()
 
         if ok:
             await ctx.message.add_reaction(CHECK_EMOJI)
-            await ctx.send(file=discord.File(sqlite.EXCEL_PATH))
+            await ctx.send(file=discord.File(sql.EXCEL_PATH))
             db.DeleteCSV()
             db.Close()
             return

@@ -8,6 +8,7 @@ name = "pypi"
 python-dotenv = "*"
 bcrypt = "*"
 db-sqlite3 = "*"
+mysql-connector-python = "*"
 
 [dev-packages]
 

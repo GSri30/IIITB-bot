@@ -1,22 +1,33 @@
 #os
 import os
+#sql
 #sqlite
-#old
 import sqlite3
-from sqlite3.dbapi2 import Error
-#new
-
+from sqlite3.dbapi2 import Cursor, Error
+#mysql
+import mysql.connector
 #encryption
 from Bcrypt import Bcrypt
 #settings
 from settings import DATABASE_PATH,EXCEL_PATH
+#secrets
+from dotenv import load_dotenv
 
-#use postgresql
-#https://github.com/EverWinter23/postgres-heroku/tree/master/src
-#https://devcenter.heroku.com/articles/heroku-postgresql#connecting-in-python
+load_dotenv()
+DEVELOPMENT=os.getenv("DEVELOPMENT")
 
-#Sqlite class which contains various methods for sqlite database management
-class SQLite:
+
+MYSQL_USER=os.getenv("MYSQL_USER")
+MYSQL_ROOT_PASSWORD=os.getenv("MYSQL_ROOT_PASSWORD")
+MYSQL_PASSWORD=os.getenv("MYSQL_PASSWORD")
+
+MYSQL_HOST=os.getenv("MYSQL_HOST")
+MYSQL_DATABASE=os.getenv("MYSQL_DATABASE")
+
+
+
+#SQL class which contains various methods for database management
+class SQL:
     def __init__(self,conn=None):
         self.conn=conn
 
@@ -27,59 +38,96 @@ class SQLite:
 
     def Connect(self,databasepath:str=DATABASE_PATH):
         try:
-            conn=sqlite3.connect(databasepath)
+            if (DEVELOPMENT == "OFF") and MYSQL_USER and MYSQL_ROOT_PASSWORD and MYSQL_PASSWORD and MYSQL_HOST and MYSQL_DATABASE:
+                print("Using mysql")
+                conn=mysql.connector.connect(
+                    host=MYSQL_HOST,
+                    user=MYSQL_USER,
+                    password=MYSQL_ROOT_PASSWORD
+                )
+            else:
+                print("Using sqlite")
+                conn=sqlite3.connect(databasepath)
+
             self.conn=conn
+            
             return True
         except Error:
             print(Error)
             return False
 
-    def CheckTableExists(self,tablename:str):
-        cursor=self.conn.cursor()
-        cursor.execute("""
-                    SELECT name
-                    FROM sqlite_master
-                    WHERE type = 'table' AND 
-                    name NOT LIKE 'sqlite_%';
-                    """)
-        existingtables=cursor.fetchone()
-        if existingtables is None:
-            print("Didn't find the required table.")
-            cursor.close()
-            return False
+    # Remove
+    # def CheckTableExists(self,tablename:str):
+    #     cursor=self.conn.cursor()
+    #     cursor.execute("""
+    #                 SELECT name
+    #                 FROM sqlite_master
+    #                 WHERE type = 'table' AND 
+    #                 name NOT LIKE 'sqlite_%';
+    #                 """)
+    #     existingtables=cursor.fetchone()
+    #     if existingtables is None:
+    #         print("Didn't find the required table.")
+    #         cursor.close()
+    #         return False
         
-        if tablename in existingtables:
-            cursor.close()
-            return True
+    #     if tablename in existingtables:
+    #         cursor.close()
+    #         return True
 
-        cursor.close()
-        return False
+    #     cursor.close()
+    #     return False
+
+    # Remove
+    # def CreateTable(self):
+    #     cursor=self.conn.cursor()
+    #     if not self.CheckTableExists("STUDENTS"):
+    #         cursor.execute(f'''CREATE TABLE STUDENTS
+    #                         (   ID INTEGER PRIMARY KEY,
+    #                             USER TEXT,
+    #                             DISCORDID TEXT,
+    #                             EMAIL TEXT NOT NULL,
+    #                             VERIFIED INT,
+    #                             DISCORDHASH TEXT NOT NULL
+    #                         );
+    #                         ''')
+    #         self.conn.commit()
+    #         print("Table created successfully")
+    #     else:
+    #         print("Using existing table.")
+    #     cursor.close()
 
     def CreateTable(self):
         cursor=self.conn.cursor()
-        if not self.CheckTableExists("STUDENTS"):
-            cursor.execute(f'''CREATE TABLE STUDENTS
+        cursor.execute(f'''CREATE TABLE IF NOT EXISTS STUDENTS
                             (   ID INTEGER PRIMARY KEY,
                                 USER TEXT,
                                 DISCORDID TEXT,
                                 EMAIL TEXT NOT NULL,
+                                BATCH TEXT NOT NULL,
                                 VERIFIED INT,
                                 DISCORDHASH TEXT NOT NULL
                             );
                             ''')
-            self.conn.commit()
-            print("Table created successfully")
-        else:
-            print("Using existing table.")
+        self.conn.commit()
         cursor.close()
         
 
-    def AddUser(self,email:str,discordhash:str):
+    def AddUser(self,email:str,batch:str,discordhash:str):
         if self.conn is not None:
-            self.conn.execute(f'''INSERT INTO STUDENTS (EMAIL,VERIFIED,DISCORDHASH)\
-                                VALUES (?,0,?)
-                            ''',(email,discordhash))
+            self.conn.execute(f'''INSERT INTO STUDENTS (EMAIL,BATCH,VERIFIED,DISCORDHASH)\
+                                VALUES (?,?,0,?)
+                            ''',(email,batch,discordhash))
             self.conn.commit()
+
+    def getBatch(self,email:str):
+        if self.conn is not None:
+            cursor=self.conn.cursor()
+            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(email,))
+            results=cursor.fetchall()
+            cursor.close()
+            return results[0][4]
+        return False
 
 
     def isPresent(self,email:str):
@@ -104,7 +152,7 @@ class SQLite:
 
             if results:
                 for student in results:
-                    if student[4]:
+                    if student[5]:
                         return True
 
         return False
@@ -132,7 +180,7 @@ class SQLite:
             results=cursor.fetchall()
             if results is not None:
                 for member in results:
-                    FoundHash=member[5]
+                    FoundHash=member[6]
                     if Bcrypt.Match(key,FoundHash):
                         cursor.execute(f"UPDATE STUDENTS SET  USER = ?, DISCORDID = ?, VERIFIED = 1  WHERE EMAIL = ? AND DISCORDHASH = ?",(memberName,memberID,mailID,FoundHash))
                         self.conn.commit()
@@ -164,9 +212,9 @@ class SQLite:
         if self.conn is not None:
             with open(excelpath,"a") as f:
                 Students=self.conn.execute(f"SELECT * FROM STUDENTS")
-                f.write(f"S.No;Student;DiscordID;Email;isVerified;UniqueHash\n")
+                f.write(f"S.No;Student;DiscordID;Email;Batch;isVerified;UniqueHash\n")
                 for student in Students:
-                    f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]}\n")
+                    f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]};{student[6]}\n")
             return True
         return False
     
@@ -180,7 +228,7 @@ class SQLite:
         if self.conn is not None:
             students=self.conn.execute(f"SELECT * FROM STUDENTS")
             for student in students:
-                print(f"{student[0]} {student[1]} {student[2]} {student[3]} {student[4]} {student[5]}")
+                print(f"{student[0]} {student[1]} {student[2]} {student[3]} {student[4]} {student[5]} {student[6]}")
 
     def Close(self):
         if self.conn is not None:
