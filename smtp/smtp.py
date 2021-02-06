@@ -10,8 +10,6 @@ SENDER_ID=os.getenv("SENDER_ID")
 SENDER_PASSWORD=os.getenv("SENDER_PASSWORD")
 
 
-#Turn on the option in https://www.google.com/settings/security/lesssecureapps
-
 def validMail(mailID:str,regex:str=REGEX,domain:str=DOMAIN):
     if re.match(regex,mailID)is None or mailID.split("@")[1]!=domain:
         return False
@@ -27,7 +25,7 @@ def send_mail(RECEIVER,KEY):
             f"DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
             )
 
-    session=smtplib.SMTP("smtp.gmail.com",587)
+    session=smtplib.SMTP("smtp-mail.outlook.com",587)
     session.starttls()
     session.login(SENDER_ID,SENDER_PASSWORD)    
     

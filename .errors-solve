@@ -1,0 +1,11 @@
+enable priviliged intents
+
+https://stackoverflow.com/questions/46020703/smtp-authentication-error-with-django-on-heroku
+solve the authentication problem that would arrive while using heroku and smtp gmail
+
+Turn on https://www.google.com/settings/security/lesssecureapps
+
+While using iiitb mail for bot, use smtp-mail.outlook.com
+
+For now, the bot cannot be made as a general college bot hosted on somewhere, though its possible.
+The entire code can be made more abstract by inheritance,decorators,base classes etc
