@@ -138,4 +138,4 @@ dmypy.json
 cython_debug/
 
 # Development Sqlite DB
-Database/MainDatabase.db
+Database/*.db
