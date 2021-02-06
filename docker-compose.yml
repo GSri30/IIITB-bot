@@ -5,10 +5,6 @@ services:
     build: .
     volumes: 
       - .:/bot
-    expose: 
-      - '80'
-    ports: 
-      - '80:80'
     env_file: 
       - .env
   
