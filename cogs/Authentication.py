@@ -94,58 +94,58 @@ class Authentication(commands.Cog,name="Authentication Cog"):
 
     # Modify command to assign to a club
 
-    @commands.cooldown(3,30,commands.BucketType.user)
-    @commands.command(name="assign",help="Helps you to assign a suitable role for yourself to view the channels.")
-    @commands.dm_only()
-    async def assign(self,ctx,role:str):
+    # @commands.cooldown(3,30,commands.BucketType.user)
+    # @commands.command(name="assign",help="Helps you to assign a suitable role for yourself to view the channels.")
+    # @commands.dm_only()
+    # async def assign(self,ctx,role:str):
     
-        async with ctx.typing():
-            ok=get(get(get(self.bot.guilds,name=GUILD).members,id=int(ctx.author.id)).roles,name=NEWBIE)
+    #     async with ctx.typing():
+    #         ok=get(get(get(self.bot.guilds,name=GUILD).members,id=int(ctx.author.id)).roles,name=NEWBIE)
        
-        if not ok:
-            await ctx.send(f"<@{ctx.author.id}> You are already verified and assigned once afaik. Contact admins if I'm wrong.")
-            return
+    #     if not ok:
+    #         await ctx.send(f"<@{ctx.author.id}> You are already verified and assigned once afaik. Contact admins if I'm wrong.")
+    #         return
 
-        async with ctx.typing():
-            guild=get(self.bot.guilds,name=GUILD)
-            members=guild.members
-            roles=guild.roles
-            role_obj=get(roles,name=role)
-            user_obj=get(members,name=ctx.author.name)
+    #     async with ctx.typing():
+    #         guild=get(self.bot.guilds,name=GUILD)
+    #         members=guild.members
+    #         roles=guild.roles
+    #         role_obj=get(roles,name=role)
+    #         user_obj=get(members,name=ctx.author.name)
 
-        await ctx.message.add_reaction(CHECK_EMOJI)
+    #     await ctx.message.add_reaction(CHECK_EMOJI)
 
-        if (not role_obj) or (not (role in ROLES)):
-            await ctx.send(f"<@{ctx.author.id}> Enter a valid role.")
-            return
+    #     if (not role_obj) or (not (role in ROLES)):
+    #         await ctx.send(f"<@{ctx.author.id}> Enter a valid role.")
+    #         return
         
-        #Can omit this line as discord itself handles this case while using a bot
-        if not user_obj:
-            await ctx.send(f"<@{ctx.author.id}> Cannot find you on the server. Re-check if you have joined.")
-            return
+    #     #Can omit this line as discord itself handles this case while using a bot
+    #     if not user_obj:
+    #         await ctx.send(f"<@{ctx.author.id}> Cannot find you on the server. Re-check if you have joined.")
+    #         return
 
-        async with ctx.typing():
-            db=sql.SQL()
-            db.Connect()
-            isVerified=db.isVerified(ctx.author.id,None)
+    #     async with ctx.typing():
+    #         db=sql.SQL()
+    #         db.Connect()
+    #         isVerified=db.isVerified(ctx.author.id,None)
 
-        if isVerified:
-            await ctx.author.send("Rock on!")
+    #     if isVerified:
+    #         await ctx.author.send("Rock on!")
 
-            await user_obj.add_roles(role_obj)
-            await user_obj.remove_roles(get(roles,name=NEWBIE))
+    #         await user_obj.add_roles(role_obj)
+    #         await user_obj.remove_roles(get(roles,name=NEWBIE))
 
-            greeting=random.choice(GREETINGS).replace(_GREETINGS, f"<@{ctx.author.id}>")
-            await get(guild.channels,id=int(WELCOME_CHANNEL)).send(greeting)
+    #         greeting=random.choice(GREETINGS).replace(_GREETINGS, f"<@{ctx.author.id}>")
+    #         await get(guild.channels,id=int(WELCOME_CHANNEL)).send(greeting)
             
-            db.Close()
-            return
+    #         db.Close()
+    #         return
 
-        db.Close()
-        await ctx.send(f"<@{ctx.author.id}> :joy: Don't trick me. Verify first.")
-        async with ctx.typing():
-            await asyncio.sleep(1.5)
-        await ctx.send(f"<@{ctx.author.id}> Wait! Think you are already verified? Re-check using !verify command. :confused:\nTip : You can only use the same discord account from which you verified your Mail ID.")
+    #     db.Close()
+    #     await ctx.send(f"<@{ctx.author.id}> :joy: Don't trick me. Verify first.")
+    #     async with ctx.typing():
+    #         await asyncio.sleep(1.5)
+    #     await ctx.send(f"<@{ctx.author.id}> Wait! Think you are already verified? Re-check using !verify command. :confused:\nTip : You can only use the same discord account from which you verified your Mail ID.")
 
     @commands.command(name="leave",help="Removes you from server and also from the mapping")
     @commands.dm_only()
