@@ -9,6 +9,7 @@ python-dotenv = "*"
 bcrypt = "*"
 db-sqlite3 = "*"
 mysql-connector-python = "*"
+requests = "*"
 
 [dev-packages]
 
