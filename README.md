@@ -22,4 +22,5 @@ Method 3:
 Create a discord application bot in discord developer portal.
 Join the bot in your private discord server. (Make one if required)
 Fill the required environment variables in a .env file and required discord channels in your private discord server.
+Feel free to edit settings.py in accordance to your requirements.
 Atlast simply run Main.py
