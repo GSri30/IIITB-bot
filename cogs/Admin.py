@@ -119,8 +119,7 @@ class Admin(commands.Cog,name="Admin Cog"):
             db.Connect()
             db.RemoveUser(mailID=mailID)
             db.Close()
-
-        await ctx.message.add_reaction(CHECK_EMOJI)
+            await ctx.message.add_reaction(CHECK_EMOJI)
 
 
     #filter---> all users who have @newbie role

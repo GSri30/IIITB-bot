@@ -22,6 +22,8 @@ MYSQL_PASSWORD=os.getenv("MYSQL_PASSWORD")
 MYSQL_HOST=os.getenv("MYSQL_HOST")
 MYSQL_DATABASE=os.getenv("MYSQL_DATABASE")
 
+# Just for safe side, even if settings are changed, will use production mode (In production)
+PRODUCTION=os.getenv("PRODUCTION")
 
 
 #SQL class which contains various methods for database management
@@ -36,20 +38,26 @@ class SQL:
 
     def Connect(self,databasepath:str=DATABASE_PATH):
         try:
-            if (DEVELOPMENT == "OFF") and MYSQL_USER and MYSQL_ROOT_PASSWORD and MYSQL_PASSWORD and MYSQL_HOST and MYSQL_DATABASE:
+            if (PRODUCTION or (not DEVELOPMENT)) and MYSQL_USER and MYSQL_ROOT_PASSWORD and MYSQL_PASSWORD and MYSQL_HOST and MYSQL_DATABASE:
                 print("Using mysql")
+                self.marker='%s'
                 conn=mysql.connector.connect(
                     host=MYSQL_HOST,
                     user=MYSQL_USER,
                     password=MYSQL_PASSWORD,
-                    database=MYSQL_DATABASE
                 )
+                cursor=conn.cursor()
+                cursor.execute("SET GLOBAL sql_mode=''")
+                cursor.execute(f"CREATE DATABASE IF NOT EXISTS {MYSQL_DATABASE}")
+                cursor.execute(f"USE {MYSQL_DATABASE}")
+                cursor.close()
             else:
                 print("Using sqlite")
+                self.marker='?'
                 conn=sqlite3.connect(databasepath)
 
             self.conn=conn
-            
+
             return True
         except Error:
             print(Error)
@@ -67,21 +75,24 @@ class SQL:
                                 DISCORDHASH TEXT NOT NULL
                             );
                             ''')
+
         self.conn.commit()
         cursor.close()
         
 
     def AddUser(self,email:str,batch:str,discordhash:str):
         if self.conn is not None:
-            self.conn.execute(f'''INSERT INTO STUDENTS (EMAIL,BATCH,VERIFIED,DISCORDHASH)\
-                                VALUES (?,?,0,?)
+            cursor=self.conn.cursor()
+            cursor.execute(f'''INSERT INTO STUDENTS (EMAIL,BATCH,VERIFIED,DISCORDHASH)\
+                                VALUES ({self.marker},{self.marker},0,{self.marker})
                             ''',(email,batch,discordhash))
             self.conn.commit()
+            cursor.close()
 
     def getBatch(self,email:str):
         if self.conn is not None:
             cursor=self.conn.cursor()
-            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(email,))
+            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = {self.marker}",(email,))
             results=cursor.fetchall()
             cursor.close()
             return results[0][4]
@@ -91,7 +102,7 @@ class SQL:
     def isPresent(self,email:str):
         if self.conn is not None:
             cursor=self.conn.cursor()
-            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(email,))
+            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = {self.marker}",(email,))
             results=cursor.fetchall()
             cursor.close()
             return len(results)>0
@@ -101,9 +112,9 @@ class SQL:
         if self.conn is not None:
             cursor=self.conn.cursor()
             if mailID is None:
-                cursor.execute(f"SELECT * FROM STUDENTS WHERE DISCORDID = ?",(memberID,))    
+                cursor.execute(f"SELECT * FROM STUDENTS WHERE DISCORDID = {self.marker}",(memberID,))    
             if memberID is None:
-                cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(mailID,))
+                cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = {self.marker}",(mailID,))
             
             results=cursor.fetchall()
             cursor.close()
@@ -120,9 +131,9 @@ class SQL:
         if self.conn is not None:
             cursor=self.conn.cursor()
             if mailID:
-                cursor.execute(f"DELETE FROM STUDENTS WHERE EMAIL = ?",(mailID,))
+                cursor.execute(f"DELETE FROM STUDENTS WHERE EMAIL = {self.marker}",(mailID,))
             if memberID:
-                cursor.execute(f"DELETE FROM STUDENTS WHERE DISCORDID = ?",(memberID,))
+                cursor.execute(f"DELETE FROM STUDENTS WHERE DISCORDID = {self.marker}",(memberID,))
             self.conn.commit()
             cursor.close()
 
@@ -134,13 +145,13 @@ class SQL:
         Found=False
         if self.conn is not None:
             cursor=self.conn.cursor()
-            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = ?",(mailID,))
+            cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = {self.marker}",(mailID,))
             results=cursor.fetchall()
             if results is not None:
                 for member in results:
                     FoundHash=member[6]
                     if Bcrypt.Match(key,FoundHash):
-                        cursor.execute(f"UPDATE STUDENTS SET  USER = ?, DISCORDID = ?, VERIFIED = 1  WHERE EMAIL = ? AND DISCORDHASH = ?",(memberName,memberID,mailID,FoundHash))
+                        cursor.execute(f"UPDATE STUDENTS SET  USER = {self.marker}, DISCORDID = {self.marker}, VERIFIED = 1  WHERE EMAIL = {self.marker} AND DISCORDHASH = {self.marker}",(memberName,memberID,mailID,FoundHash))
                         self.conn.commit()
                         Found=True
                         break
@@ -161,18 +172,24 @@ class SQL:
     
     def EmptyDB(self):
         if self.conn is not None:
-            self.conn.execute(f"DELETE FROM STUDENTS")
+            cursor=self.conn.cursor()
+            cursor.execute(f"DELETE FROM STUDENTS")
             self.conn.commit()
+            cursor.close()
             print("Emptied the database successfully!")
             
 
     def GenerateCSV(self,excelpath:str=EXCEL_PATH):
         if self.conn is not None:
             with open(excelpath,"a") as f:
-                Students=self.conn.execute(f"SELECT * FROM STUDENTS")
+                cursor=self.conn.cursor()
+                cursor.execute(f"SELECT * FROM STUDENTS")
+                Students=cursor.fetchall()
                 f.write(f"S.No;Student;DiscordID;Email;Batch;isVerified;UniqueHash\n")
-                for student in Students:
-                    f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]};{student[6]}\n")
+                if Students is not None:
+                    for student in Students:
+                        f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]};{student[6]}\n")
+                cursor.close()
             return True
         return False
     
@@ -184,9 +201,11 @@ class SQL:
 
     def PrintDB(self):
         if self.conn is not None:
-            students=self.conn.execute(f"SELECT * FROM STUDENTS")
+            cursor=self.conn.cursor()
+            students=cursor.execute(f"SELECT * FROM STUDENTS")
             for student in students:
                 print(f"{student[0]} {student[1]} {student[2]} {student[3]} {student[4]} {student[5]} {student[6]}")
+            cursor.close()
 
     def Close(self):
         if self.conn is not None:
