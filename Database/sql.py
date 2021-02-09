@@ -9,20 +9,26 @@ import mysql.connector
 #encryption
 from Bcrypt import Bcrypt
 #settings
-from settings import DATABASE_PATH,EXCEL_PATH,DEVELOPMENT
+from settings import DATABASE_PATH,EXCEL_PATH,DEVELOPMENT,DELTA_YEAR
 #secrets
 from dotenv import load_dotenv
 
 load_dotenv()
 
-MYSQL_USER=os.getenv("MYSQL_USER")
+# Root
+MYSQL_ROOT_USER=os.getenv("MYSQL_ROOT_USER")
 MYSQL_ROOT_PASSWORD=os.getenv("MYSQL_ROOT_PASSWORD")
+
+# Normal User
+MYSQL_USER=os.getenv("MYSQL_USER")
 MYSQL_PASSWORD=os.getenv("MYSQL_PASSWORD")
 
+# Other specs
 MYSQL_HOST=os.getenv("MYSQL_HOST")
 MYSQL_DATABASE=os.getenv("MYSQL_DATABASE")
 
 # Just for safe side, even if settings are changed, will use production mode (In production)
+# Will always be true in production server
 PRODUCTION=os.getenv("PRODUCTION")
 
 
@@ -36,15 +42,16 @@ class SQL:
         self.CreateTable()
         self.Close()
 
+    # Connect to sql (Either mysql or sqlite) and establish a connection
     def Connect(self,databasepath:str=DATABASE_PATH):
         try:
-            if (PRODUCTION or (not DEVELOPMENT)) and MYSQL_USER and MYSQL_ROOT_PASSWORD and MYSQL_PASSWORD and MYSQL_HOST and MYSQL_DATABASE:
+            if ((PRODUCTION is not None and PRODUCTION) or (not DEVELOPMENT)):
                 print("Using mysql")
                 self.marker='%s'
                 conn=mysql.connector.connect(
                     host=MYSQL_HOST,
-                    user=MYSQL_USER,
-                    password=MYSQL_PASSWORD,
+                    user=MYSQL_ROOT_USER,
+                    password=MYSQL_ROOT_PASSWORD,
                 )
                 cursor=conn.cursor()
                 cursor.execute("SET GLOBAL sql_mode=''")
@@ -63,6 +70,7 @@ class SQL:
             print(Error)
             return False
 
+    # Create a table (if not exists)
     def CreateTable(self):
         cursor=self.conn.cursor()
         cursor.execute(f'''CREATE TABLE IF NOT EXISTS STUDENTS
@@ -72,6 +80,7 @@ class SQL:
                                 EMAIL TEXT NOT NULL,
                                 BATCH TEXT NOT NULL,
                                 VERIFIED INT,
+                                REGISTRATION_YEAR TEXT,
                                 DISCORDHASH TEXT NOT NULL
                             );
                             ''')
@@ -80,25 +89,40 @@ class SQL:
         cursor.close()
         
 
-    def AddUser(self,email:str,batch:str,discordhash:str):
+    # Add a user into the database (register)
+    def AddUser(self,email:str,batch:str,regyear:str,discordhash:str):
         if self.conn is not None:
             cursor=self.conn.cursor()
-            cursor.execute(f'''INSERT INTO STUDENTS (EMAIL,BATCH,VERIFIED,DISCORDHASH)\
-                                VALUES ({self.marker},{self.marker},0,{self.marker})
-                            ''',(email,batch,discordhash))
+            cursor.execute(f'''INSERT INTO STUDENTS (EMAIL,BATCH,VERIFIED,REGISTRATION_YEAR,DISCORDHASH)\
+                                VALUES ({self.marker},{self.marker},0,{self.marker},{self.marker})
+                            ''',(email,batch,regyear,discordhash))
             self.conn.commit()
             cursor.close()
 
+    # Get batch to which a user belongs to from email
     def getBatch(self,email:str):
         if self.conn is not None:
             cursor=self.conn.cursor()
             cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = {self.marker}",(email,))
             results=cursor.fetchall()
             cursor.close()
-            return results[0][4]
+            if results:
+                return results[0][4]
+            return None
         return False
 
+    # Remove all users whose registration year and current year difference is below 'DELTA_YEAR'
+    def filterOldAlumni(self,curryear:str):
+        if self.conn is not None:
+            cursor=self.conn.cursor()
+            cursor.execute(f"SELECT * FROM STUDENTS WHERE REGISTRATION_YEAR <= {curryear-DELTA_YEAR}")
+            results=cursor.fetchall()
+            cursor.execute(f"DELETE FROM STUDENTS WHERE REGISTRATION_YEAR <= {curryear-DELTA_YEAR}")
+            cursor.close()
+            return [row[2] for row in results]
+        return False
 
+    # Check if a user with specified email exists or not
     def isPresent(self,email:str):
         if self.conn is not None:
             cursor=self.conn.cursor()
@@ -108,6 +132,7 @@ class SQL:
             return len(results)>0
         return False
 
+    # Check if a user with specified discord ID and email ID is verified
     def isVerified(self,memberID:str,mailID:str):
         if self.conn is not None:
             cursor=self.conn.cursor()
@@ -127,6 +152,7 @@ class SQL:
         return False
 
 
+    # Remove a user using either mail ID or Discord ID
     def RemoveUser(self,mailID:str=None,memberID:str=None):
         if self.conn is not None:
             cursor=self.conn.cursor()
@@ -138,9 +164,11 @@ class SQL:
             cursor.close()
 
 
+    # Update a user mail ID
     def UpdateEmail(self):
         pass
 
+    # Verify a user using the provided Key and map the discord ID with email ID if its a match
     def VerifyUser(self,memberName:str,memberID:str,mailID:str,key:str):
         Found=False
         if self.conn is not None:
@@ -159,6 +187,7 @@ class SQL:
         return Found
         
 
+    # Remove all the unverified users
     def RemoveUnverified(self):
         if self.conn is not None:
             cursor=self.conn.cursor()
@@ -170,6 +199,7 @@ class SQL:
             return results
         return None
     
+    #! Empty the entire DB
     def EmptyDB(self):
         if self.conn is not None:
             cursor=self.conn.cursor()
@@ -178,7 +208,7 @@ class SQL:
             cursor.close()
             print("Emptied the database successfully!")
             
-
+    # Generate a CSV from the DB
     def GenerateCSV(self,excelpath:str=EXCEL_PATH):
         if self.conn is not None:
             with open(excelpath,"a") as f:
@@ -188,25 +218,26 @@ class SQL:
                 f.write(f"S.No;Student;DiscordID;Email;Batch;isVerified;UniqueHash\n")
                 if Students is not None:
                     for student in Students:
-                        f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]};{student[6]}\n")
+                        f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]};{student[6]};{student[7]}\n")
                 cursor.close()
             return True
         return False
     
-
+    # Delete the generated CSV
     def DeleteCSV(self,excelpath:str=EXCEL_PATH):
         if os.path.exists(excelpath):
             os.remove(excelpath)
             
-
+    # Print the DB (Helper function)
     def PrintDB(self):
         if self.conn is not None:
             cursor=self.conn.cursor()
             students=cursor.execute(f"SELECT * FROM STUDENTS")
             for student in students:
-                print(f"{student[0]} {student[1]} {student[2]} {student[3]} {student[4]} {student[5]} {student[6]}")
+                print(f"{student[0]} {student[1]} {student[2]} {student[3]} {student[4]} {student[5]} {student[6]} {student[7]}")
             cursor.close()
 
+    # Close the connection
     def Close(self):
         if self.conn is not None:
             self.conn.close()

@@ -13,6 +13,8 @@ from smtp import smtp
 from Bcrypt import Bcrypt
 #database
 from Database import sql
+#other
+from datetime import datetime
 
 
 #Admin cog
@@ -74,7 +76,7 @@ class Admin(commands.Cog,name="Admin Cog"):
                 if isPresent and (not isVerified):
                     db.RemoveUser(mailID=mailID)
                 
-                db.AddUser(mailID,batch,KeyHash)
+                db.AddUser(mailID,batch,str(datetime.now().year),KeyHash)
             
                 smtp.send_mail(mailID,Key)
 
@@ -274,9 +276,23 @@ class Admin(commands.Cog,name="Admin Cog"):
                 if ok:
                     await member.add_roles(obj2)
                     count+=1
-            
+        
+        # As a sub-process, we also remove old alumni of below CURRENT_YEAR-DELTA_YEAR seniority
+        async with ctx.typing():
+            count=0
+            db=sql.SQL()
+            db.Connect()
+            results=db.filterOldAlumni(str(datetime.now().year))
+            if results is not None:
+                for alumniID in results:
+                    alumni=discord.utils.get(ctx.guild.members,id=int(alumniID))
+                    alumni.send("Will miss you! All the best from IIIT-B community!\n")
+                    ctx.guild.kick(alumni,reason="Old Alumni")
+                    count+=1
+            db.Close()
+
         await ctx.message.add_reaction(CHECK_EMOJI)
-        await ctx.send(f"Updated roles of {count} member(s) successfully!")
+        await ctx.send(f"Updated roles of {count} member(s) and removed {count} Old Alumni successfully!")
 
 
 def setup(bot):

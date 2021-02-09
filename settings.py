@@ -13,6 +13,8 @@ DATABASE_PATH = os.path.join(BASE_DIR,"Database",DATABASE_NAME)
 EXCEL_NAME = "MainDatabaseExcel.csv"
 EXCEL_PATH = os.path.join(BASE_DIR,"Database",EXCEL_NAME)
 
+# Used to remove old alumini of specified year difference
+DELTA_YEAR=20
 
 #! For any new feature, exclude newbies from using them and also disable DM
 #! There shouldn't be any DM commands. If present, exclude newbies from using them.

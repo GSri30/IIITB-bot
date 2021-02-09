@@ -139,3 +139,6 @@ cython_debug/
 
 # Development Sqlite DB
 *.db
+
+# Spare folder
+_ignore/
