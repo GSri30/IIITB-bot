@@ -3,7 +3,7 @@ import re
 
 from __constants import REGEX,DOMAIN
 
-from secret import SENDER_ID,SENDER_PASSWORD
+from secret import SENDER_ID,SENDER_PASSWORD,DISCORD_LINK
 
 from smtp.Templates.Verification import VERIFICATION_MAIL
 
@@ -16,13 +16,7 @@ def validMail(mailID:str,regex:str=REGEX,domain:str=DOMAIN):
 def send_mail(RECEIVER,KEY):
 
     SUBJECT=f"Verify Email Address for IIIT-B discord server "
-    MESSAGE=(f"Hey there! You have been successfully registered for IIITB discord server.\n\n"
-            f"To verify your email, please use the below key : "
-            f"\n'{KEY}'\n Check the rules-page in the server for more information."
-            f"\n\n!verify {RECEIVER} {KEY}\n\nIn case of any issues, contact any of the server admins. "
-            f"DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
-            )
-    MESSAGE_HTML=VERIFICATION_MAIL(KEY,"https://discord.gg/GKKfJpDkjT","")
+    MESSAGE_HTML=VERIFICATION_MAIL(KEY,str(DISCORD_LINK),"sac@iiitb.org")
 
     session=smtplib.SMTP("smtp-mail.outlook.com",587)
     session.starttls()
@@ -32,7 +26,6 @@ def send_mail(RECEIVER,KEY):
     msg['From']=SENDER_ID
     msg['To']=RECEIVER
     msg['Subject']=SUBJECT
-    #msg.attach(email.mime.text.MIMEText(MESSAGE,"plain"))
     msg.attach(email.mime.text.MIMEText(MESSAGE_HTML,"html"))
 
     print("Sending mail to "+RECEIVER)

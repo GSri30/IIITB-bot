@@ -124,7 +124,7 @@ body {font-family: 'Muli', sans-serif;}
     <tbody>
       <tr>
         <td style="font-size:6px; line-height:10px; padding:0px 0px 0px 0px;" valign="top" align="center">
-          <img class="max-width" border="0" style="display:block; color:#000000; text-decoration:none; font-family:Helvetica, arial, sans-serif; font-size:16px;" width="95" alt="" data-proportionally-constrained="true" data-responsive="false" src="https://www.iiitb.ac.in/includefiles/userfiles/images/iiitb_logo.jpg" height="70">
+          <img class="max-width" border="0" style="display:block; color:#000000; background-color:#0e0e0e; text-decoration:none; font-family:Helvetica, arial, sans-serif; font-size:16px;" width="95" alt="" data-proportionally-constrained="true" data-responsive="false" src="https://www.iiitb.ac.in/includefiles/userfiles/images/IIITB-invert-logo.png" height="80">
         </td>
       </tr>
     </tbody>
@@ -205,7 +205,7 @@ body {font-family: 'Muli', sans-serif;}
               <tbody>
                 <tr>
                 <td align="center" bgcolor="#ffbe00" class="inner-td" style="border-radius:6px; font-size:16px; text-align:center; background-color:inherit;">
-                  <a href="'''+mod_contact+'''" style="background-color:#ffbe00; border:1px solid #ffbe00; border-color:#ffbe00; border-radius:0px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 40px 12px 40px; text-align:center; text-decoration:none; border-style:solid; font-family:inherit;" target="_blank">Contact Support</a>
+                  <a href="" style="background-color:#ffbe00; border:1px solid #ffbe00; border-color:#ffbe00; border-radius:0px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 40px 12px 40px; text-align:center; text-decoration:none; border-style:solid; font-family:inherit;" target="_blank">'''+mod_contact+'''</a>
                 </td>
                 </tr>
               </tbody>

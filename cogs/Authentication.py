@@ -5,14 +5,13 @@ from discord.channel import DMChannel
 #embeds
 from cogs.Embeds import Embeds
 #constants
-from __constants import CHECK_EMOJI,ROLES,GREETINGS,_GREETINGS
+from __constants import CHECK_EMOJI,GREETINGS,_GREETINGS
 #database
 from Database import sql
 #secret
-from secret import GUILD,WELCOME_CHANNEL,NEWBIE,RULES_CHANNEL
+from secret import GUILD,WELCOME_CHANNEL,NEWBIE
 #other
 import random
-import asyncio
 
 
 class Authentication(commands.Cog,name="Authentication Cog"):

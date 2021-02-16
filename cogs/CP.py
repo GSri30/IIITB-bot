@@ -7,7 +7,7 @@ from cogs.Embeds import Embeds
 #constants
 from __constants import CHECK_EMOJI,CROSS_EMOJI,CP_LOGOS,COLORS
 #secret
-from secret import DEVELOPERS_CHANNEL,GUILD,CP_CHANNEL,NEWBIE,CLIST_USERNAME,CLIST_KEY
+from secret import ADMIN_LOG,GUILD,CP_CHANNEL,NEWBIE,CLIST_USERNAME,CLIST_KEY
 #Other
 import requests
 import time
@@ -72,7 +72,7 @@ class CP(commands.Cog,name="Competitive Programming Cog"):
                         summary=Embeds.NextContestEmbed("Contest",contest["event"],contest["href"],self.decode_iso(contest["start"]),self.sec_to_hour(contest["duration"]),logos[self.hostname(contest["href"])],random.choice(colors))
                         await get(get(self.bot.guilds,name=GUILD).channels,id=int(CP_CHANNEL)).send(embed=summary)
             else:
-                await get(get(self.bot.guilds,name=GUILD).channels,name=DEVELOPERS_CHANNEL).send(f"Error in CP cog while fetching next contest details.\nStatus code : {r.status_code}")
+                await get(get(self.bot.guilds,name=GUILD).channels,id=int(ADMIN_LOG)).send(f"Error in CP cog while fetching next contest details.\nStatus code : {r.status_code}")
 
 
 def setup(bot):
