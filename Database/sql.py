@@ -55,7 +55,7 @@ class SQL:
     def CreateTable(self):
         cursor=self.conn.cursor()
         cursor.execute(f'''CREATE TABLE IF NOT EXISTS STUDENTS
-                            (   ID INTEGER PRIMARY KEY,
+                            (   ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                 USER TEXT,
                                 DISCORDID TEXT,
                                 EMAIL TEXT NOT NULL,
