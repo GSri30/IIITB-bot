@@ -4,7 +4,7 @@ import os
 # Turn 'OFF' if you want to use production DB instead of a mysql db
 # Else 'ON' to use mysql db
 
-DEVELOPMENT=False
+DEVELOPMENT=True
 
 BASE_DIR = Path(__file__).resolve().parent
 

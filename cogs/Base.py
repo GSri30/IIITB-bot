@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.utils import get
 from discord import Activity,ActivityType
 #secret
-from cogs.secret import NEWBIE,GUILD,RULES_CHANNEL, WELCOME_CHANNEL
+from secret import NEWBIE,GUILD,RULES_CHANNEL, WELCOME_CHANNEL
 #constants
 from __constants import _GREETINGS,GREETINGS
 #other

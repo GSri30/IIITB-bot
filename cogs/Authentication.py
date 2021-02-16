@@ -9,7 +9,7 @@ from __constants import CHECK_EMOJI,ROLES,GREETINGS,_GREETINGS
 #database
 from Database import sql
 #secret
-from cogs.secret import GUILD,WELCOME_CHANNEL,NEWBIE,RULES_CHANNEL
+from secret import GUILD,WELCOME_CHANNEL,NEWBIE,RULES_CHANNEL
 #other
 import random
 import asyncio
@@ -56,8 +56,18 @@ class Authentication(commands.Cog,name="Authentication Cog"):
             return
 
         if isVerified:
+            batch=db.getBatch(emailID)
             db.Close()
-            await ctx.send(f"<@{ctx.message.author.id}> '{emailID}' is already verified successfully! Assign yourself a suitable role to proceed into the server. :smile: ")
+            
+            guild=get(self.bot.guilds,name=GUILD)
+            members=guild.members
+            roles=guild.roles
+            role_obj=get(roles,name=batch)
+            user_obj=get(members,name=ctx.author.name)
+            
+            await ctx.send(f"<@{ctx.message.author.id}> '{emailID}' is already verified successfully! You have been given {batch} role again. Welcome back!. :smile: ")
+            await user_obj.add_roles(role_obj)
+            await user_obj.remove_roles(get(roles,name=NEWBIE))
             return
 
         async with ctx.typing():
@@ -83,9 +93,6 @@ class Authentication(commands.Cog,name="Authentication Cog"):
             greeting=random.choice(GREETINGS).replace(_GREETINGS, f"<@{ctx.author.id}>")
             await get(guild.channels,id=int(WELCOME_CHANNEL)).send(greeting)
 
-            # async with ctx.typing():
-            #     await asyncio.sleep(1.5)
-            # await ctx.author.send(f"As a last step, assign yourself a suitable role to view all the channels! :smile:\n(Refer <#{RULES_CHANNEL}> if you have any doubts).")
             return
 
         db.Close()

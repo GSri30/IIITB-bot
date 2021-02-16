@@ -1,13 +1,11 @@
 import smtplib,email.mime.multipart,email.mime.text,email.mime.base,email.encoders
 import re
-import os
 
 from __constants import REGEX,DOMAIN
 
-from dotenv import load_dotenv
-load_dotenv()
-SENDER_ID=os.getenv("SENDER_ID")
-SENDER_PASSWORD=os.getenv("SENDER_PASSWORD")
+from secret import SENDER_ID,SENDER_PASSWORD
+
+from smtp.Templates.Verification import VERIFICATION_MAIL
 
 
 def validMail(mailID:str,regex:str=REGEX,domain:str=DOMAIN):
@@ -24,6 +22,7 @@ def send_mail(RECEIVER,KEY):
             f"\n\n!verify {RECEIVER} {KEY}\n\nIn case of any issues, contact any of the server admins. "
             f"DO NOT reply to this mail! (I'm not an AI bot :p)\n\n\n~IIITB Discord Bot"
             )
+    MESSAGE_HTML=VERIFICATION_MAIL(KEY,"https://discord.gg/GKKfJpDkjT","")
 
     session=smtplib.SMTP("smtp-mail.outlook.com",587)
     session.starttls()
@@ -33,7 +32,8 @@ def send_mail(RECEIVER,KEY):
     msg['From']=SENDER_ID
     msg['To']=RECEIVER
     msg['Subject']=SUBJECT
-    msg.attach(email.mime.text.MIMEText(MESSAGE,"plain"))
+    #msg.attach(email.mime.text.MIMEText(MESSAGE,"plain"))
+    msg.attach(email.mime.text.MIMEText(MESSAGE_HTML,"html"))
 
     print("Sending mail to "+RECEIVER)
     session.sendmail(SENDER_ID,RECEIVER,msg.as_string())

@@ -23,7 +23,7 @@ services:
     ports: 
       - '3306:3306'
     env_file: 
-      - Database/.env
+      - .env
 
 volumes: 
   bot_mysql:

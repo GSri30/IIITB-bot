@@ -5,7 +5,7 @@ from discord.channel import DMChannel
 #constants
 from __constants import CHECK_EMOJI,CROSS_EMOJI
 #secret
-from cogs.secret import DEVELOPERS_CHANNEL
+from secret import DEVELOPERS_CHANNEL
 
 
 #General Cog

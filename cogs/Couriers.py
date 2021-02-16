@@ -5,7 +5,7 @@ from discord.utils import get
 #constants
 from __constants import CHECK_EMOJI,CROSS_EMOJI
 #secret
-from cogs.secret import NEWBIE
+from secret import NEWBIE
 
 
 #Couriers Cog

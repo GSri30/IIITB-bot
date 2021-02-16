@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.utils import get
 from discord.channel import DMChannel
 #secret
-from cogs.secret import ADMIN_LOG, GUILD
+from secret import ADMIN_LOG, GUILD
 #constants
 from __constants import CROSS_EMOJI
 

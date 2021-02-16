@@ -5,9 +5,9 @@ from discord.utils import get
 #embeds
 from cogs.Embeds import Embeds
 #constants
-from __constants import CHECK_EMOJI,CROSS_EMOJI
+from __constants import CHECK_EMOJI,CROSS_EMOJI,CP_LOGOS,COLORS
 #secret
-from cogs.secret import DEVELOPERS_CHANNEL,GUILD,CP_CHANNEL,NEWBIE,CLIST_USERNAME,CLIST_KEY
+from secret import DEVELOPERS_CHANNEL,GUILD,CP_CHANNEL,NEWBIE,CLIST_USERNAME,CLIST_KEY
 #Other
 import requests
 import time
@@ -55,6 +55,7 @@ class CP(commands.Cog,name="Competitive Programming Cog"):
         await ctx.message.add_reaction(CHECK_EMOJI)
         await ctx.send(f"Feature coming soon! :smile:")
     
+    # freq : 1 day
     @tasks.loop(seconds=86400)
     async def NextContest(self):
         await self.bot.wait_until_ready()
@@ -62,16 +63,8 @@ class CP(commands.Cog,name="Competitive Programming Cog"):
         async with channel.typing():
             url=f"https://clist.by/api/v1/contest/?username={CLIST_USERNAME}&api_key={CLIST_KEY}&order_by=-start&limit=1000"
             r=requests.get(url=url)
-            logos={
-                "codeforces.com":"https://sta.codeforces.com/s/54591/images/codeforces-logo-with-telegram.png",
-                "open.kattis.com":"https://open.kattis.com/images/site-logo",
-                "www.codechef.com":"https://s3.amazonaws.com/codechef_shared/sites/all/themes/abessive/logo.png",
-                "leetcode.com":"https://upload.wikimedia.org/wikipedia/commons/1/19/LeetCode_logo_black.png",
-                "binarysearch.com":"https://cdn.dribbble.com/users/913795/screenshots/14724005/media/38309ab447a27bf7311592715b6baeae.png?compress=1&resize=1000x750",
-                "topcoder.com":"https://www.topcoder.com/wp-content/media/2016/01/tc_new_logo-300x156.png",
-                "atcoder.jp":"https://img.atcoder.jp/assets/logo.png",
-            }
-            colors=[0xFACE53,0x1F8ECE,0xB73A23]
+            logos=CP_LOGOS
+            colors=COLORS
             if str(r.status_code)=="200":
                 contests=r.json()["objects"]
                 for contest in contests:

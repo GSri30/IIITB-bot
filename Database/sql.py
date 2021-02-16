@@ -11,26 +11,7 @@ from Bcrypt import Bcrypt
 #settings
 from settings import DATABASE_PATH,EXCEL_PATH,DEVELOPMENT,DELTA_YEAR
 #secrets
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Root
-MYSQL_ROOT_USER=os.getenv("MYSQL_ROOT_USER")
-MYSQL_ROOT_PASSWORD=os.getenv("MYSQL_ROOT_PASSWORD")
-
-# Normal User
-MYSQL_USER=os.getenv("MYSQL_USER")
-MYSQL_PASSWORD=os.getenv("MYSQL_PASSWORD")
-
-# Other specs
-MYSQL_HOST=os.getenv("MYSQL_HOST")
-MYSQL_DATABASE=os.getenv("MYSQL_DATABASE")
-
-# Just for safe side, even if settings are changed, will use production mode (In production)
-# Will always be true in production server
-PRODUCTION=os.getenv("PRODUCTION")
-
+from secret import MYSQL_DATABASE,MYSQL_HOST,MYSQL_ROOT_USER,MYSQL_ROOT_PASSWORD,MYSQL_USER,MYSQL_PASSWORD,PRODUCTION
 
 #SQL class which contains various methods for database management
 class SQL:
@@ -45,7 +26,7 @@ class SQL:
     # Connect to sql (Either mysql or sqlite) and establish a connection
     def Connect(self,databasepath:str=DATABASE_PATH):
         try:
-            if ((PRODUCTION is not None and PRODUCTION) or (not DEVELOPMENT)):
+            if ((PRODUCTION is not None and PRODUCTION=='True') or (not DEVELOPMENT)):
                 print("Using mysql")
                 self.marker='%s'
                 conn=mysql.connector.connect(
@@ -177,8 +158,8 @@ class SQL:
             results=cursor.fetchall()
             if results is not None:
                 for member in results:
-                    FoundHash=member[6]
-                    if Bcrypt.Match(key,FoundHash):
+                    FoundHash=member[7]
+                    if Bcrypt.Match(str(key),FoundHash):
                         cursor.execute(f"UPDATE STUDENTS SET  USER = {self.marker}, DISCORDID = {self.marker}, VERIFIED = 1  WHERE EMAIL = {self.marker} AND DISCORDHASH = {self.marker}",(memberName,memberID,mailID,FoundHash))
                         self.conn.commit()
                         Found=True
@@ -215,7 +196,7 @@ class SQL:
                 cursor=self.conn.cursor()
                 cursor.execute(f"SELECT * FROM STUDENTS")
                 Students=cursor.fetchall()
-                f.write(f"S.No;Student;DiscordID;Email;Batch;isVerified;UniqueHash\n")
+                f.write(f"S.No;Student;DiscordID;Email;Batch;isVerified;VerificationYear;UniqueHash\n")
                 if Students is not None:
                     for student in Students:
                         f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]};{student[6]};{student[7]}\n")

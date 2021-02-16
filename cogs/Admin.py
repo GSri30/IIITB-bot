@@ -6,7 +6,7 @@ import discord
 #constants
 from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI,MAIL_EMOJI,NON_STUDENT_MAILS
 #secret
-from cogs.secret import ADMIN,REGISTRATION_CHANNEL,NEWBIE
+from secret import ADMIN,REGISTRATION_CHANNEL,NEWBIE
 #mail
 from smtp import smtp
 #encryption
