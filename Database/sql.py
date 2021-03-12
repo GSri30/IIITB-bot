@@ -54,17 +54,30 @@ class SQL:
     # Create a table (if not exists)
     def CreateTable(self):
         cursor=self.conn.cursor()
-        cursor.execute(f'''CREATE TABLE IF NOT EXISTS STUDENTS
-                            (   ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                USER TEXT,
-                                DISCORDID TEXT,
-                                EMAIL TEXT NOT NULL,
-                                BATCH TEXT NOT NULL,
-                                VERIFIED INT,
-                                REGISTRATION_YEAR TEXT,
-                                DISCORDHASH TEXT NOT NULL
-                            );
-                            ''')
+        if ((PRODUCTION is not None and PRODUCTION=='True') or (not DEVELOPMENT)):
+            cursor.execute(f'''CREATE TABLE IF NOT EXISTS STUDENTS
+                                (   ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                    USER TEXT,
+                                    DISCORDID TEXT,
+                                    EMAIL TEXT NOT NULL,
+                                    BATCH TEXT NOT NULL,
+                                    VERIFIED INT,
+                                    REGISTRATION_YEAR TEXT,
+                                    DISCORDHASH TEXT NOT NULL
+                                );
+                                ''')
+        else:
+            cursor.execute(f'''CREATE TABLE IF NOT EXISTS STUDENTS
+                                (   ID INT NOT NULL PRIMARY KEY,
+                                    USER TEXT,
+                                    DISCORDID TEXT,
+                                    EMAIL TEXT NOT NULL,
+                                    BATCH TEXT NOT NULL,
+                                    VERIFIED INT,
+                                    REGISTRATION_YEAR TEXT,
+                                    DISCORDHASH TEXT NOT NULL
+                                );
+                                ''')
 
         self.conn.commit()
         cursor.close()

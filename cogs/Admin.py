@@ -6,7 +6,7 @@ import discord
 #constants
 from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI,MAIL_EMOJI,NON_STUDENT_MAILS
 #secret
-from secret import ADMIN,REGISTRATION_CHANNEL,NEWBIE
+from secret import ADMIN,REGISTRATION_CHANNEL,NEWBIE,RULES_CHANNEL
 #mail
 from smtp import smtp
 #encryption
@@ -56,10 +56,12 @@ class Admin(commands.Cog,name="Admin Cog"):
             db=sql.SQL()
             db.Connect()
             
+            smtp_object=smtp.SMTP()
+
             for mailID in arguments:
                 mailID=mailID.lower()
 
-                if (not smtp.validMail(mailID.lower())) or (mailID in NON_STUDENT_MAILS):
+                if (not smtp.SMTP.validMail(mailID.lower())) or (mailID in NON_STUDENT_MAILS):
                     failed+=f"{mailID}\n"
                     continue
                     
@@ -78,7 +80,7 @@ class Admin(commands.Cog,name="Admin Cog"):
                 
                 db.AddUser(mailID,batch,str(datetime.now().year),KeyHash)
             
-                smtp.send_mail(mailID,Key)
+                smtp_object.send_mail(mailID,Key)
 
                 success+=f"{mailID}\n"
 
@@ -102,6 +104,8 @@ class Admin(commands.Cog,name="Admin Cog"):
                         f"{registered}\n"
                         )
         
+        smtp_object.quit()
+
         await ctx.message.add_reaction(CHECK_EMOJI)
 
         await ctx.send(summary)
@@ -293,6 +297,20 @@ class Admin(commands.Cog,name="Admin Cog"):
 
         await ctx.message.add_reaction(CHECK_EMOJI)
         await ctx.send(f"Updated roles of {count} member(s) and removed {count} Old Alumni successfully!")
+
+
+    @commands.command(name="sync-permissions",help="Helps to sync the most important permissions required for authentication functioning.")
+    @commands.has_role(ADMIN)
+    async def sync_permissions(self,ctx):
+        await ctx.send(f"<@{ctx.author.id}> Okay. Will notify once I'm done.")
+        newbie=get(ctx.guild.roles,name=NEWBIE)
+        for channel in ctx.guild.channels:
+            if int(channel.id)==int(RULES_CHANNEL):
+                continue
+            await channel.set_permissions(newbie,view_channel=False,attach_files=False,send_messages=False,send_tts_messages=False)
+        
+        await ctx.message.add_reaction(CHECK_EMOJI)
+        await ctx.send(f"<@{ctx.author.id}> Done.")
 
 
 def setup(bot):
