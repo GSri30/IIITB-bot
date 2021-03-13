@@ -151,7 +151,7 @@ class Authentication(commands.Cog,name="Authentication Cog"):
     #     await ctx.send(f"<@{ctx.author.id}> :joy: Don't trick me. Verify first.")
     #     async with ctx.typing():
     #         await asyncio.sleep(1.5)
-    #     await ctx.send(f"<@{ctx.author.id}> Wait! Think you are already verified? Re-check using !verify command. :confused:\nTip : You can only use the same discord account from which you verified your Mail ID.")
+    #     await ctx.send(f"<@{ctx.author.id}> Wait! Think you are already verified? Re-check using &verify command. :confused:\nTip : You can only use the same discord account from which you verified your Mail ID.")
 
     @commands.command(name="leave",help="Removes you from server and also from the mapping")
     @commands.dm_only()

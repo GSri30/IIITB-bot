@@ -15,8 +15,8 @@ def main():
     intents=Intents.default()
     intents.members=True
     
-    # Don't change prefix ('!')
-    bot=commands.Bot(command_prefix="!",intents=intents)
+    # Don't change prefix ('&')
+    bot=commands.Bot(command_prefix="&",intents=intents)
     
     for PATH in COGS:
         bot.load_extension(PATH)

@@ -43,7 +43,7 @@ class Base(commands.Cog,name="Base Cog"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await self.bot.change_presence(activity=Activity(type=ActivityType.listening, name="!help"))
+        await self.bot.change_presence(activity=Activity(type=ActivityType.listening, name="&help"))
         print(f'{self.bot.user.name} has connected to Discord!')
 
     @commands.Cog.listener()
