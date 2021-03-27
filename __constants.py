@@ -20,7 +20,7 @@ LENGTH = 16
 REGEX = '^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$'
 
 # Allowed domain of the mail IDs
-DOMAIN = "iiitb.org"
+DOMAIN = "iiitb.ac.in"
 
 # List
 ROLES=[
