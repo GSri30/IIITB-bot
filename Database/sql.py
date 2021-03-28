@@ -9,7 +9,7 @@ import mysql.connector
 #encryption
 from Bcrypt import Bcrypt
 #settings
-from settings import DATABASE_PATH,EXCEL_PATH,DEVELOPMENT,DELTA_YEAR
+from settings import DATABASE_PATH,EXCEL_PATH,DELTA_YEAR
 #secrets
 from secret import MYSQL_DATABASE,MYSQL_HOST,MYSQL_ROOT_USER,MYSQL_ROOT_PASSWORD,MYSQL_USER,MYSQL_PASSWORD,PRODUCTION
 
@@ -26,7 +26,7 @@ class SQL:
     # Connect to sql (Either mysql or sqlite) and establish a connection
     def Connect(self,databasepath:str=DATABASE_PATH):
         try:
-            if ((PRODUCTION is not None and PRODUCTION=='True') or (not DEVELOPMENT)):
+            if ((PRODUCTION is not None and PRODUCTION=='True')):
                 print("Using mysql")
                 self.marker='%s'
                 conn=mysql.connector.connect(
@@ -54,7 +54,7 @@ class SQL:
     # Create a table (if not exists)
     def CreateTable(self):
         cursor=self.conn.cursor()
-        if ((PRODUCTION is not None and PRODUCTION=='True') or (not DEVELOPMENT)):
+        if ((PRODUCTION is not None and PRODUCTION=='True')):
             cursor.execute(f'''CREATE TABLE IF NOT EXISTS STUDENTS
                                 (   ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                     USER TEXT,

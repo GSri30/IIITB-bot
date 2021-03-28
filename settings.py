@@ -1,8 +1,6 @@
 from pathlib import Path
 import os
 
-DEVELOPMENT=False
-
 BASE_DIR = Path(__file__).resolve().parent
 
 DATABASE_NAME = "MainDatabase.db"

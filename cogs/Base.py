@@ -76,7 +76,7 @@ class Base(commands.Cog,name="Base Cog"):
         if (before.overwrites_for(newbie)!=after.overwrites_for(newbie)):
             log_channel=get(guild.channels,id=int(ADMIN_LOG))
             await log_channel.send(f"{user} changed 'newbie' role settings for <#{after.id}>. Might be risky! (I have reset the important ones :smile:) Get to 'audit-log' to get complete details.")
-            await log_channel.set_permissions(newbie,view_channel=False,attach_files=False,send_messages=False,send_tts_messages=False)
+            await after.set_permissions(newbie,view_channel=False,attach_files=False,send_messages=False,send_tts_messages=False)
 
         if (before.overwrites_for(everyone)!=after.overwrites_for(everyone)):
             log_channel=get(guild.channels,id=int(ADMIN_LOG))

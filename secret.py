@@ -24,8 +24,7 @@ MYSQL_PASSWORD=os.getenv("MYSQL_PASSWORD")
 MYSQL_HOST=os.getenv("MYSQL_HOST")
 MYSQL_DATABASE=os.getenv("MYSQL_DATABASE")
 
-# Just for safe side, even if settings are changed, will use production mode (In production)
-# Will always be true in production server
+# For production side purposes
 PRODUCTION=os.getenv("PRODUCTION")
 
 #channels
