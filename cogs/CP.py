@@ -46,7 +46,7 @@ class CP(commands.Cog,name="Competitive Programming Cog"):
     def hostname(self,url:str):
         return urlparse(url).hostname
 
-    @commands.command(name="random-cf",help="Gives a random Codeforces question.")
+    @commands.command(name="random-cf",help="Gives a random Codeforces question.",hidden=True)
     async def randomQ(self,ctx):
         if self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)

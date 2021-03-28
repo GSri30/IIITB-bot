@@ -20,7 +20,7 @@ class Couriers(commands.Cog,name="Couriers Cog"):
         ok=get(ctx.author.roles,name=NEWBIE)
         return ok is not None
 
-    @commands.command(name="couriers",help="Gives you your couriers list.(if any)")
+    @commands.command(name="couriers",help="Gives you your couriers list.(if any)",hidden=True)
     async def couriers(self,ctx,mobile:str=None):
         if self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)

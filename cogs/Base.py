@@ -9,6 +9,7 @@ from secret import ADMIN, ADMIN_LOG, NEWBIE,GUILD,RULES_CHANNEL, WELCOME_CHANNEL
 from __constants import _GREETINGS,GREETINGS
 #other
 import random
+import asyncio
 
 #Base Cog
 class Base(commands.Cog,name="Base Cog"):
@@ -57,6 +58,11 @@ class Base(commands.Cog,name="Base Cog"):
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self,before,after):
+        '''
+        Wait until log gets updated
+        '''
+        await asyncio.sleep(1.5)
+        
         guild=get(self.bot.guilds,name=GUILD)
         newbie=get(guild.roles,name=NEWBIE)
         everyone=get(guild.roles,name="@everyone")
@@ -80,6 +86,8 @@ class Base(commands.Cog,name="Base Cog"):
 
     @commands.Cog.listener()
     async def on_member_update(self,before,after):
+        await asyncio.sleep(1.5)
+        
         guild=get(self.bot.guilds,name=GUILD)
         async for log in guild.audit_logs(limit=1):
             user=log.user
