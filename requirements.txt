@@ -12,6 +12,7 @@ db-sqlite3==0.0.1
 db==0.1.1
 discord.py==1.7.3
 flask==2.0.1
+gunicorn==20.1.0
 idna==3.2; python_version >= '3'
 itsdangerous==2.0.1
 jinja2==3.0.1

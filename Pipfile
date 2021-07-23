@@ -13,6 +13,7 @@ requests = "*"
 aiohttp = "*"
 Flask = "*"
 six = "*"
+gunicorn = "*"
 
 [dev-packages]
 
