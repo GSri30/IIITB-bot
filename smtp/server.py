@@ -108,5 +108,5 @@ def verify():
     return make_response(render_template('HTML/404.html'),200,headers)
     return "User Not Found"
 
-if __name__ == "__main__":
-    app.run()
+# if __name__ == "__main__":
+#     app.run()
