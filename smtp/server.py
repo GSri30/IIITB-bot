@@ -5,6 +5,7 @@ from flask import Flask,render_template, make_response,request
 import base64,pickle,requests
 from secret import CLIENT_ID,CLIENT_SECRET,TOKEN,NEWBIE,GUILD_ID
 from Database import sql
+import os
 
 db=sql.SQL()
 
@@ -108,5 +109,5 @@ def verify():
     return make_response(render_template('HTML/404.html'),200,headers)
     return "User Not Found"
 
-# if __name__ == "__main__":
-#     app.run()
+if __name__ == "__main__":
+    app.run(port=os.environ.get('PORT', 5000))
