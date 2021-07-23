@@ -5,14 +5,14 @@ attrs==21.2.0
 bcrypt==3.2.0
 certifi==2021.5.30
 cffi==1.14.6
-chardet==3.0.4
+chardet==4.0.0
+charset-normalizer==2.0.3; python_version >= '3'
 click==8.0.1
 db-sqlite3==0.0.1
 db==0.1.1
-discord-webhooks==1.0.4
 discord.py==1.7.3
 flask==2.0.1
-idna==2.8
+idna==3.2; python_version >= '3'
 itsdangerous==2.0.1
 jinja2==3.0.1
 markupsafe==2.0.1
@@ -21,7 +21,7 @@ mysql-connector-python==8.0.26
 protobuf==3.17.3
 pycparser==2.20
 python-dotenv==0.18.0
-requests==2.21.0
+requests==2.26.0
 six==1.16.0
 typing-extensions==3.10.0.0
 urllib3==1.26.6

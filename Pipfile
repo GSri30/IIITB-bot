@@ -13,7 +13,6 @@ requests = "*"
 aiohttp = "*"
 Flask = "*"
 six = "*"
-Discord-Webhooks = "*"
 
 [dev-packages]
 
