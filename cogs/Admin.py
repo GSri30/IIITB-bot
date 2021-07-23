@@ -4,7 +4,7 @@ from discord.channel import DMChannel
 from discord.utils import get
 import discord
 #constants
-from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI,MAIL_EMOJI,NON_STUDENT_MAILS
+from __constants import CHECK_EMOJI,UNCHECK_EMOJI,CROSS_EMOJI,MAIL_EMOJI,NON_STUDENT_MAILS,LIKE_EMOJI
 #secret
 from secret import ADMIN,REGISTRATION_CHANNEL,NEWBIE,RULES_CHANNEL
 #mail
@@ -15,7 +15,14 @@ from Bcrypt import Bcrypt
 from Database import sql
 #other
 from datetime import datetime
-
+#OAuth
+import base64,pickle,requests
+#Settings
+from settings import OAUTH_URL,SUMMARY_PATH
+# Excel Utils
+import requests
+import asyncio
+import os
 
 #Admin cog
 class Admin(commands.Cog,name="Admin Cog"):
@@ -32,6 +39,111 @@ class Admin(commands.Cog,name="Admin Cog"):
         ok=discord.utils.get(ctx.author.roles,name=NEWBIE)
         return ok is not None
        
+
+    @commands.command(name="register-excel")
+    @commands.has_role(ADMIN)
+    async def register_excel(self,ctx,batch:str):
+        if not self.is_in_channel(ctx,REGISTRATION_CHANNEL):
+            await ctx.send("Please do this stuff in registration channel.")
+            return
+
+        if not get(ctx.guild.roles,name=batch):
+            await ctx.send("Enter a valid batch role. (case-sensitive)")
+            return
+
+        await ctx.send(f"<@{ctx.author.id}> Upload the csv file within 60 sec. Enter 'n' (without quotes) to cancel.")
+
+        def check(msg):
+            if(msg.author==ctx.author and msg.channel==ctx.channel):
+                if (msg.content.lower()=="n" or len(msg.attachments)>0):
+                    return True
+            return False 
+        
+        try:
+            msg=await self.bot.wait_for('message',check=check,timeout=60)
+            if(msg.content=="n"):
+                await msg.add_reaction(LIKE_EMOJI)
+                return
+            attachment=msg.attachments[0]
+            file=requests.get(attachment,stream=True)
+            students=[]
+            for line in file.iter_lines():
+                students.append(line.decode('utf-8'))
+            await msg.add_reaction(LIKE_EMOJI)
+            await self.send_mails(ctx,batch,students)
+        except asyncio.exceptions.TimeoutError:
+            await ctx.send(f"<@{ctx.author.id}> Sorry, you didn't upload any csv file within 60sec. Aborted.")
+            return
+
+    async def send_mails(self,ctx,batch,students):
+        async with ctx.typing():
+
+            success=[]
+            failed=[]
+            registered=[]
+
+            db=sql.SQL()
+            db.Connect()
+            
+            smtp_object=smtp.SMTP()
+
+            for mailID in students:
+                mailID=mailID.lower()
+
+                if (not smtp.SMTP.validMail(mailID.lower())) or (mailID in NON_STUDENT_MAILS):
+                    failed.append(mailID)
+                    continue
+                    
+                isPresent=db.isPresent(mailID)
+                isVerified=db.isVerified(None,mailID)
+
+                if isPresent and isVerified:
+                    registered.append(mailID)
+                    continue
+
+                Key=Bcrypt.GeneratePassword()
+                KeyHash=Bcrypt.Hash(Key)
+
+                if isPresent and (not isVerified):
+                    db.RemoveUser(mailID=mailID)
+                
+                db.AddUser(mailID,batch,str(datetime.now().year),KeyHash)
+
+                stateObj={'emailID':mailID,'key':Key,'batch':batch}
+                state=base64.urlsafe_b64encode(pickle.dumps(stateObj)).decode('utf-8');
+                url=f"{OAUTH_URL}&state={state}"
+
+                smtp_object.send_mail(mailID,Key,url)
+                success.append(mailID)
+
+            successLen=len(success)
+            failedLen=len(failed)
+            registeredLen=len(registered)
+
+            with open(SUMMARY_PATH,'w') as f:
+                f.write("Success,Failed,Already Registered\n")
+                for i in range(max([successLen,failedLen,registeredLen])):
+                    if i<successLen:
+                        f.write(f"{success[i]},")
+                    else:
+                        f.write(',')
+                    if i<failedLen:
+                        f.write(f"{failed[i]},")
+                    else:
+                        f.write(',')
+                    if i<registeredLen:
+                        f.write(registered[i])
+                    f.write('\n')
+
+        smtp_object.quit()
+
+        await ctx.message.add_reaction(CHECK_EMOJI)
+
+        await ctx.send(file=discord.File(SUMMARY_PATH))
+
+        os.remove(SUMMARY_PATH)
+
+        db.Close()
 
     @commands.command(name="register",help="Registers a user using their IIIT-B domain mail id.")
     @commands.has_role(ADMIN)
@@ -79,8 +191,12 @@ class Admin(commands.Cog,name="Admin Cog"):
                     db.RemoveUser(mailID=mailID)
                 
                 db.AddUser(mailID,batch,str(datetime.now().year),KeyHash)
-            
-                smtp_object.send_mail(mailID,Key)
+
+                stateObj={'emailID':mailID,'key':Key,'batch':batch}
+                state=base64.urlsafe_b64encode(pickle.dumps(stateObj)).decode('utf-8');
+                url=f"{OAUTH_URL}&state={state}"
+
+                smtp_object.send_mail(mailID,Key,url)
 
                 success+=f"{mailID}\n"
 
@@ -231,6 +347,15 @@ class Admin(commands.Cog,name="Admin Cog"):
 
         await ctx.message.add_reaction(CHECK_EMOJI)
         await ctx.send(summary)
+
+
+    @commands.command(name="roles",help="Returns the list of server roles")
+    @commands.has_role(ADMIN)
+    async def roles(self,ctx):
+        rls=""
+        for role in ctx.guild.roles:
+            rls+=f"{role.name}\n"
+        await ctx.send(rls)
 
 
     @commands.command(name="list",help="Gives the database list in an excel sheet form.")

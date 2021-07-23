@@ -166,6 +166,9 @@ class Authentication(commands.Cog,name="Authentication Cog"):
 
         await get(self.bot.guilds,name=GUILD).kick(ctx.author,reason=f"{ctx.author} used leave command.")
 
+    # @commands.Cog.listener()
+    # async def on_message(self,message):
+    #     print(message.content)
 
 def setup(bot):
     bot.add_cog(Authentication(bot))

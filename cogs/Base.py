@@ -32,9 +32,8 @@ class Base(commands.Cog,name="Base Cog"):
     async def on_member_join(self,member):
         if not member.bot:
             await member.add_roles(get(get(self.bot.guilds,name=GUILD).roles,name=NEWBIE))
-            await member.send((f"<@{member.id}> Hey Hii!\nYou need to verify your IIITB mail id in order to get into the server!\n"
-                                f"If you don't have any key, contact admins.\n"
-                                f"If you have a key, head over to <#{RULES_CHANNEL}> and come back! I will be waiting. :smile:"
+            await member.send((f"<@{member.id}> Hey Hii!Not yet verified your email? Please goahead and use the verification-link in the confirmation mail or check the other way mentioned in <#{RULES_CHANNEL}> :smile:\n"
+                                f"If you don't have any verification-link/key, contact admins.\n"
                                 ))
             return
         
@@ -76,7 +75,7 @@ class Base(commands.Cog,name="Base Cog"):
         if (before.overwrites_for(newbie)!=after.overwrites_for(newbie)):
             log_channel=get(guild.channels,id=int(ADMIN_LOG))
             await log_channel.send(f"{user} changed 'newbie' role settings for <#{after.id}>. Might be risky! (I have reset the important ones :smile:) Get to 'audit-log' to get complete details.")
-            await after.set_permissions(newbie,view_channel=False,attach_files=False,send_messages=False,send_tts_messages=False)
+            await after.set_permissions(newbie,attach_files=False,send_messages=False,send_tts_messages=False)
 
         if (before.overwrites_for(everyone)!=after.overwrites_for(everyone)):
             log_channel=get(guild.channels,id=int(ADMIN_LOG))
@@ -102,7 +101,7 @@ class Base(commands.Cog,name="Base Cog"):
                 break
 
         if (ok and len(after.roles)>2) or (len(after.roles)==1):
-            await get(get(self.bot.guilds,name=GUILD).channels,id=int(ADMIN_LOG)).send(f"Something fishy! {user} updated {after} (newbie) role which might give him/her message access. Get to 'audit log' to get complete details.")
+            await get(get(self.bot.guilds,name=GUILD).channels,id=int(ADMIN_LOG)).send(f"Check! {user} updated {after} (newbie) role which might give him/her message access. Get to 'audit log' to get complete details.")
         
 
 def setup(bot):

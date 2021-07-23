@@ -61,7 +61,7 @@ class CP(commands.Cog,name="Competitive Programming Cog"):
         await self.bot.wait_until_ready()
         channel=get(get(self.bot.guilds,name=GUILD).channels,id=int(CP_CHANNEL))
         async with channel.typing():
-            url=f"https://clist.by/api/v1/contest/?username={CLIST_USERNAME}&api_key={CLIST_KEY}&order_by=-start&limit=1000"
+            url=f"https://clist.by/api/v1/contest/?username={CLIST_USERNAME}&api_key={CLIST_KEY}&order_by=-start&limit=500"
             r=requests.get(url=url)
             logos=CP_LOGOS
             colors=COLORS

@@ -11,6 +11,9 @@ db-sqlite3 = "*"
 mysql-connector-python = "*"
 requests = "*"
 aiohttp = "*"
+Flask = "*"
+six = "*"
+Discord-Webhooks = "*"
 
 [dev-packages]
 

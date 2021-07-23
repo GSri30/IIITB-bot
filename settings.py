@@ -7,6 +7,8 @@ DATABASE_NAME = "MainDatabase.db"
 DATABASE_PATH = os.path.join(BASE_DIR,"Database",DATABASE_NAME)
 EXCEL_NAME = "MainDatabaseExcel.csv"
 EXCEL_PATH = os.path.join(BASE_DIR,"Database",EXCEL_NAME)
+SUMMARY_NAME = "Summary.csv"
+SUMMARY_PATH = os.path.join(BASE_DIR,"Database",SUMMARY_NAME)
 
 # Used to remove old alumini of specified year difference
 DELTA_YEAR=20
@@ -25,3 +27,7 @@ COGS=[
     "cogs.Couriers",
     "cogs.CP",
 ]
+
+REDIRECT_URI='http://127.0.0.1:5000/verify'
+
+OAUTH_URL="https://discord.com/api/oauth2/authorize?client_id=818501377164181567&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fverify&response_type=code&scope=identify%20guilds.join"

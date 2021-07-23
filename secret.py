@@ -6,6 +6,9 @@ BASEDIR=os.path.abspath(os.path.dirname(__file__))
 
 load_dotenv(os.path.join(BASEDIR,'.env'))
 
+#Base Token
+TOKEN=os.getenv("DISCORD_TOKEN")
+
 #SMTP
 SENDER_ID=os.getenv("SENDER_ID")
 SENDER_PASSWORD=os.getenv("SENDER_PASSWORD")
@@ -45,6 +48,7 @@ NEWBIE=getenv("NEWBIE")
 
 #guild
 GUILD=getenv("GUILD")
+GUILD_ID=getenv("GUILD_ID")
 
 #Clist API
 CLIST_USERNAME=getenv("CLIST_USERNAME")
@@ -52,3 +56,10 @@ CLIST_KEY=getenv("CLIST_KEY")
 
 # Discord Link
 DISCORD_LINK=getenv("DISCORD_LINK")
+
+#OAuth2
+CLIENT_ID=getenv("CLIENT_ID")
+CLIENT_SECRET=getenv("CLIENT_SECRET")
+
+# OAuth2 Verification Webhook
+URL=getenv("URL")

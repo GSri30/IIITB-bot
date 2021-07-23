@@ -5,7 +5,7 @@ from __constants import REGEX,DOMAIN
 
 from secret import SENDER_ID,SENDER_PASSWORD,DISCORD_LINK
 
-from smtp.Templates.Verification import VERIFICATION_MAIL
+from smtp.templates.Verification import VERIFICATION_MAIL
 
 
 class SMTP:
@@ -29,9 +29,9 @@ class SMTP:
         return True
 
 
-    def send_mail(self,RECEIVER,KEY):
+    def send_mail(self,RECEIVER,KEY,URL):
 
-        MESSAGE_HTML=VERIFICATION_MAIL(KEY,str(DISCORD_LINK),"sac@iiitb.org")
+        MESSAGE_HTML=VERIFICATION_MAIL(KEY,URL,str(DISCORD_LINK),"sac@iiitb.org")
 
         self.msg['To']=RECEIVER
         self.msg.attach(email.mime.text.MIMEText(MESSAGE_HTML,"html"))

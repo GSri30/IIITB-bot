@@ -1,4 +1,4 @@
-VERIFICATION_MAIL=lambda secret_key,server_link,mod_contact:\
+VERIFICATION_MAIL=lambda secret_key,oauth_url,server_link,mod_contact:\
 '''<html data-editor-version="2" class="sg-campaigns" xmlns="http://www.w3.org/1999/xhtml"><head>
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
@@ -144,8 +144,10 @@ body {font-family: 'Muli', sans-serif;}
   </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="a10dcb57-ad22-4f4d-b765-1d427dfddb4e" data-mc-module-version="2019-10-22">
     <tbody>
       <tr>
-        <td style="padding:18px 30px 18px 30px; line-height:22px; text-align:inherit; background-color:#ffffff;" height="100%" valign="top" bgcolor="#ffffff" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 18px">Please verify your email address to</span><span style="color: #000000; font-size: 18px; font-family: arial,helvetica,sans-serif"> get access to many interactions, auto-notifications and many more</span><span style="font-size: 18px">.</span></div>
-<div style="font-family: inherit; text-align: center"><span style="color: #ffbe00; font-size: 18px"><strong>Thank you!&nbsp;</strong></span></div><div></div></div></td>
+        <td style="padding:18px 30px 18px 30px; line-height:22px; text-align:inherit; background-color:#ffffff;" height="100%" valign="top" bgcolor="#ffffff" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 18px">Please verify your email address using the below url to</span><span style="color: #000000; font-size: 18px; font-family: arial,helvetica,sans-serif"> get access to many interactions, auto-notifications and many more</span><span style="font-size: 18px">.</span></div>
+<div style="font-family: inherit; text-align: center"><span style="color: #ffbe00; font-size: 18px"><strong>Thank you!&nbsp;</strong></span></div>
+<div style="font-family: inherit; text-align: center"><span style="font-size: 10px">(Please don't share the link (nor the key) with anyone)</div>
+</div></td>
       </tr>
     </tbody>
   </table><table class="module" role="module" data-type="spacer" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="7770fdab-634a-4f62-a277-1c66b2646d8d">
@@ -162,12 +164,17 @@ body {font-family: 'Muli', sans-serif;}
             <table border="0" cellpadding="0" cellspacing="0" class="wrapper-mobile" style="text-align:center;">
               <tbody>
                 <tr>
-                  <td style="padding:18px 30px 18px 30px; line-height:22px; text-align:inherit; background-color:#ffffff;" height="100%" valign="top" bgcolor="#ffffff" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 18px">Key : </span><span style="color: #000000; font-size: 18px; font-family: arial,helvetica,sans-serif"><strong>'''+secret_key+'''</strong></span></div>
+                <td style="padding-bottom:20px" align="center" bgcolor="#ffbe00" class="inner-td" style="border-radius:6px; font-size:16px; text-align:center; background-color:inherit;">
+                  <a href='''+server_link+''' style="background-color:#ffbe00; border:1px solid #ffbe00; border-color:#ffbe00; border-radius:0px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 40px 12px 40px; text-align:center; text-decoration:none; border-style:solid; font-family:inherit;" target="_blank">IIITB Discord</a>
+                </td>
                 </tr>
                 <tr>
                 <td align="center" bgcolor="#ffbe00" class="inner-td" style="border-radius:6px; font-size:16px; text-align:center; background-color:inherit;">
-                  <a href='''+server_link+''' style="background-color:#ffbe00; border:1px solid #ffbe00; border-color:#ffbe00; border-radius:0px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 40px 12px 40px; text-align:center; text-decoration:none; border-style:solid; font-family:inherit;" target="_blank">IIITB Discord</a>
+                  <a href='''+oauth_url+''' style="background-color:#ffbe00; border:1px solid #ffbe00; border-color:#ffbe00; border-radius:0px; border-width:1px; color:#000000; display:inline-block; font-size:14px; font-weight:normal; letter-spacing:0px; line-height:normal; padding:12px 40px 12px 40px; text-align:center; text-decoration:none; border-style:solid; font-family:inherit;" target="_blank">Verify Email</a>
                 </td>
+                </tr>
+                <tr>
+                  <td style="padding:18px 30px 18px 30px; line-height:22px; text-align:inherit; background-color:#ffffff;" height="100%" valign="top" bgcolor="#ffffff" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 14px">Alternatively, you can also use your unique key : </span><span style="color: #000000; font-size: 16px; font-family: arial,helvetica,sans-serif"><strong>'''+secret_key+'''</strong></span><span style="font-size: 12px">[Follow <strong>rules-page</strong> channel for the same]</span></div>
                 </tr>
               </tbody>
             </table>
@@ -186,11 +193,13 @@ body {font-family: 'Muli', sans-serif;}
       <tr>
         <td style="padding:50px 30px 50px 30px; line-height:22px; text-align:inherit; background-color:#6e6e6e;" height="100%" valign="top" bgcolor="#6e6e6e" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px"><strong>Here’s what happens next:</strong></span></div>
 <div style="font-family: inherit; text-align: center"><br></div>
-<div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">1. Use the above key to verify yourself. Follow <strong>rules-page</strong> channel for the same.</span></div>
+<div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">1. Firstly, join the server.</span></div>
 <div style="font-family: inherit; text-align: center"><br></div>
-<div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">2. After successful verification, you will be automatically assigned a suitable batch role.</span></div>
+<div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">2. Then use your unique verification url (or the 'key' [Follow <strong>rules-page</strong> channel for the same]) to verify yourself.</span></div>
 <div style="font-family: inherit; text-align: center"><br></div>
-<div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">3. Thats all about it! Start with <strong>!help</strong> command to explore me.</span></div>
+<div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">3. After successful verification, you will automatically be assigned to your batch role. And also you will get access to all the other channels.</span></div>
+<div style="font-family: inherit; text-align: center"><br></div>
+<div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">4. Thats all about it! Start with <strong>&help</strong> command to explore me, in the server.</span></div>
 <div style="font-family: inherit; text-align: center"><span style="color: #ffbe00; font-size: 18px"><strong>+ much more!</strong></span></div>
 <div style="font-family: inherit; text-align: center"><br></div>
 <div style="font-family: inherit; text-align: center"><span style="color: #ffffff; font-size: 18px">Need support? Our moderators are always</span></div>

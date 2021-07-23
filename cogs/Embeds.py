@@ -17,6 +17,5 @@ class Embeds:
         embed=Embed(title=title,description=f"[{name}]({event_url})",color=color)
         embed.add_field(name="Start time",value=start)
         embed.add_field(name="Duration",value=duration)
-        embed.set_footer(text="All the best!")
         embed.set_thumbnail(url=logo_url)
         return embed

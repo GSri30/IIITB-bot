@@ -135,6 +135,9 @@ class SQL:
             if memberID is None:
                 cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = {self.marker}",(mailID,))
             
+            if mailID is not None and memberID is not None:
+                cursor.execute(f"SELECT * FROM STUDENTS WHERE EMAIL = {self.marker} AND DISCORDID = {self.marker}",(mailID,memberID,))
+
             results=cursor.fetchall()
             cursor.close()
 
@@ -205,14 +208,14 @@ class SQL:
     # Generate a CSV from the DB
     def GenerateCSV(self,excelpath:str=EXCEL_PATH):
         if self.conn is not None:
-            with open(excelpath,"a") as f:
+            with open(excelpath,"w") as f:
                 cursor=self.conn.cursor()
                 cursor.execute(f"SELECT * FROM STUDENTS")
                 Students=cursor.fetchall()
-                f.write(f"S.No;Student;DiscordID;Email;Batch;isVerified;VerificationYear;UniqueHash\n")
+                f.write(f"S.No,Student,DiscordID,Email,Batch,isVerified,VerificationYear,UniqueHash\n")
                 if Students is not None:
                     for student in Students:
-                        f.write(f"{student[0]};{student[1]};'{student[2]}';{student[3]};{student[4]};{student[5]};{student[6]};{student[7]}\n")
+                        f.write(f"{student[0]},{student[1]},'{student[2]}',{student[3]},{student[4]},{student[5]},{student[6]},{student[7]}\n")
                 cursor.close()
             return True
         return False

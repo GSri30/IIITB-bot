@@ -22,9 +22,9 @@ class Couriers(commands.Cog,name="Couriers Cog"):
 
     @commands.command(name="couriers",hidden=True)
     async def couriers(self,ctx,mobile:str=None):
-        if self.is_a_DM(ctx):
+        if not self.is_a_DM(ctx):
             await ctx.message.add_reaction(CROSS_EMOJI)
-            await ctx.author.send(f"Sorry. You cannot DM me for this! :neutral_face:")
+            await ctx.author.send(f"Sorry. You can only DM me for this! :neutral_face:")
             return
             
         await ctx.message.add_reaction(CHECK_EMOJI)
