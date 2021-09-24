@@ -1,2 +1,2 @@
 worker: python Main.py
-web: gunicorn app:smtp/server
+web: gunicorn smtp/server:app
