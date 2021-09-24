@@ -19,7 +19,7 @@ import random
 class CP(commands.Cog,name="Competitive Programming Cog"):
     def __init__(self,bot):
         self.bot=bot
-        self.NextContest.start()
+        # self.NextContest.start()
 
     def is_a_DM(self,ctx):
         return isinstance(ctx.channel,DMChannel)

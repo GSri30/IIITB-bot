@@ -30,4 +30,4 @@ COGS=[
 
 REDIRECT_URI='http://127.0.0.1:5000/verify'
 
-OAUTH_URL="https://discord.com/api/oauth2/authorize?client_id=818501377164181567&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fverify&response_type=code&scope=identify%20guilds.join"
+OAUTH_URL="https://discord.com/api/oauth2/authorize?client_id=891043842030190613&redirect_uri=http%3A%2F%2F127.0.0.1%3A5000%2Fverify&response_type=code&scope=identify%20guilds.join"
